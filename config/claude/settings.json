@@ -1,5 +1,11 @@
 {
   "$schema": "https://claude.ai/schemas/claude-code-settings.json",
+  "mcpServers": {
+    "context7": {
+      "command": "npx",
+      "args": ["-y", "@upstash/context7-mcp@latest"]
+    }
+  },
   "permissions": {
     "allow": [
       "Bash(git add:*)",
