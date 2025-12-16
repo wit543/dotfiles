@@ -32,6 +32,9 @@
     # Pager - use delta for better diffs (falls back to less if not installed)
     pager = delta
 
+    # Global gitignore (OS files, editor configs, etc.)
+    excludesfile = ~/.gitignore_global
+
 # ============================================================================
 # DELTA (Better Git Diff Viewer)
 # ============================================================================

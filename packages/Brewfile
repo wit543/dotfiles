@@ -56,7 +56,11 @@ brew "dust"                           # du replacement (disk usage)
 brew "procs"                          # ps replacement (process viewer)
 brew "sd"                             # sed replacement (find & replace)
 brew "jq"                             # JSON processor
+brew "yq"                             # YAML processor (like jq for YAML)
 brew "htop"                           # Interactive process viewer (fallback)
+brew "tldr"                           # Simplified man pages with examples
+brew "thefuck"                        # Auto-correct previous command typos
+brew "hyperfine"                      # Command benchmarking tool
 
 # ============================================================================
 # TUI PRODUCTIVITY TOOLS
@@ -65,6 +69,8 @@ brew "htop"                           # Interactive process viewer (fallback)
 
 brew "lazygit"                        # Git TUI (lg)
 brew "lazydocker"                     # Docker TUI (lzd)
+brew "yazi"                           # Terminal file manager (2024 trending)
+brew "btop"                           # Beautiful system monitor TUI
 
 # ============================================================================
 # DEVELOPMENT
@@ -94,10 +100,12 @@ cask "font-meslo-lg-nerd-font"        # Powerline + Nerd Font icons
 # ============================================================================
 # NOTE: GUI applications installed via Homebrew
 
-cask "iterm2"                         # Terminal emulator
+cask "iterm2"                         # Terminal emulator (stable)
+cask "ghostty"                        # GPU-accelerated terminal (2025 trending)
 cask "visual-studio-code"             # Code editor
 cask "docker"                         # Container platform
 cask "google-chrome"                  # Web browser
+cask "raycast"                        # Spotlight replacement (productivity)
 
 # ============================================================================
 # END OF BREWFILE

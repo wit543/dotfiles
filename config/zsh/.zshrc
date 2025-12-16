@@ -209,6 +209,38 @@ alias glog="git log --oneline --graph --decorate -20"
 alias lg="lazygit"
 alias lzd="lazydocker"
 
+# yazi file manager (y to cd to dir on exit)
+if command -v yazi &>/dev/null; then
+    function y() {
+        local tmp="$(mktemp -t "yazi-cwd.XXXXXX")" cwd
+        yazi "$@" --cwd-file="$tmp"
+        if cwd="$(command cat -- "$tmp")" && [ -n "$cwd" ] && [ "$cwd" != "$PWD" ]; then
+            builtin cd -- "$cwd"
+        fi
+        rm -f -- "$tmp"
+    }
+fi
+
+# btop system monitor
+if command -v btop &>/dev/null; then
+    alias top="btop"
+fi
+
+# ============================================================================
+# ALIASES - PRODUCTIVITY (2025)
+# ============================================================================
+
+# tldr - simplified man pages
+if command -v tldr &>/dev/null; then
+    alias help="tldr"
+fi
+
+# thefuck - auto-correct typos
+if command -v thefuck &>/dev/null; then
+    eval $(thefuck --alias)
+    eval $(thefuck --alias fk)  # shorter alias
+fi
+
 # ============================================================================
 # CUSTOM FUNCTIONS
 # ============================================================================

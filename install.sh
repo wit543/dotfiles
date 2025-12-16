@@ -292,8 +292,22 @@ setup_git() {
     log_info "Setting up Git..."
 
     symlink "$DOTFILES_DIR/config/git/.gitconfig" "$HOME/.gitconfig"
+    symlink "$DOTFILES_DIR/config/git/.gitignore_global" "$HOME/.gitignore_global"
 
     log_success "Git setup complete"
+}
+
+# ============================================================================
+# EDITOR CONFIG SETUP
+# ============================================================================
+# NOTE: Universal editor settings (works with VSCode, Vim, etc.)
+
+setup_editorconfig() {
+    log_info "Setting up EditorConfig..."
+
+    symlink "$DOTFILES_DIR/config/editor/.editorconfig" "$HOME/.editorconfig"
+
+    log_success "EditorConfig setup complete"
 }
 
 # ============================================================================
@@ -320,10 +334,11 @@ setup_vscode() {
     fi
 
     # --------------------------
-    # Settings
+    # Settings & Keybindings
     # --------------------------
     mkdir -p "$vscode_settings_dir"
     symlink "$DOTFILES_DIR/config/vscode/settings.json" "$vscode_settings_dir/settings.json"
+    symlink "$DOTFILES_DIR/config/vscode/keybindings.json" "$vscode_settings_dir/keybindings.json"
 
     # --------------------------
     # Extensions
@@ -513,6 +528,7 @@ main() {
     setup_vim
     setup_tmux
     setup_git
+    setup_editorconfig
     setup_vscode
     setup_claude
 

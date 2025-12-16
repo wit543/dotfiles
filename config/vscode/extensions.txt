@@ -86,11 +86,28 @@ github.copilot                        # GitHub Copilot
 github.copilot-chat                   # Copilot Chat
 
 # ----------------------------------------------------------------------------
+# TESTING & PERFORMANCE
+# ----------------------------------------------------------------------------
+orta.vscode-jest                      # Jest test runner
+hbenl.vscode-test-explorer            # Test explorer UI
+wix.vscode-import-cost                # Show import sizes inline
+
+# ----------------------------------------------------------------------------
 # PRODUCTIVITY
 # ----------------------------------------------------------------------------
 alefragnani.project-manager           # Project manager
 gruntfuggly.todo-tree                 # TODO tree view
 humao.rest-client                     # REST API client
+editorconfig.editorconfig             # EditorConfig support
+mikestead.dotenv                      # .env file syntax highlighting
+mechatroner.rainbow-csv               # CSV/TSV with colors
+johnpapa.vscode-peacock               # Color-code workspaces
+wallabyjs.quokka-vscode               # JS/TS live scratchpad
+
+# ----------------------------------------------------------------------------
+# CLAUDE CODE
+# ----------------------------------------------------------------------------
+anthropics.claude-code                # Claude Code integration
 
 # ----------------------------------------------------------------------------
 # VIM (Optional - uncomment if you want Vim keybindings)
