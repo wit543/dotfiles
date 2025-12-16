@@ -27,6 +27,14 @@ brew "tmux"                           # Terminal multiplexer
 brew "expect"                         # Interactive automation
 
 # ============================================================================
+# SHELL - PROMPT & PLUGINS
+# ============================================================================
+# NOTE: Starship prompt and Zinit managed via install script
+
+brew "starship"                       # Cross-shell prompt (replaces P10k)
+brew "zoxide"                         # Smarter cd command (replaces z)
+
+# ============================================================================
 # SEARCH & NAVIGATION
 # ============================================================================
 # NOTE: Fast file/content searching
@@ -34,17 +42,29 @@ brew "expect"                         # Interactive automation
 brew "fzf"                            # Fuzzy finder (Ctrl+R, Ctrl+T)
 brew "ripgrep"                        # Fast grep (rg)
 brew "fd"                             # Fast find
-brew "tree"                           # Directory tree view
+brew "tree"                           # Directory tree view (fallback)
 
 # ============================================================================
 # MODERN CLI REPLACEMENTS
 # ============================================================================
-# NOTE: Better alternatives to standard tools
+# NOTE: Better alternatives to standard tools (with silent fallbacks)
 
 brew "bat"                            # cat with syntax highlighting
-brew "eza"                            # ls replacement (colors, git)
+brew "eza"                            # ls replacement (colors, git, icons)
+brew "git-delta"                      # Better git diff viewer
+brew "dust"                           # du replacement (disk usage)
+brew "procs"                          # ps replacement (process viewer)
+brew "sd"                             # sed replacement (find & replace)
 brew "jq"                             # JSON processor
-brew "htop"                           # Interactive process viewer
+brew "htop"                           # Interactive process viewer (fallback)
+
+# ============================================================================
+# TUI PRODUCTIVITY TOOLS
+# ============================================================================
+# NOTE: Terminal UI tools for git and docker
+
+brew "lazygit"                        # Git TUI (lg)
+brew "lazydocker"                     # Docker TUI (lzd)
 
 # ============================================================================
 # DEVELOPMENT
@@ -65,7 +85,7 @@ cask "google-cloud-sdk"
 # ============================================================================
 # FONTS
 # ============================================================================
-# NOTE: Required for Powerlevel10k prompt icons
+# NOTE: Required for Starship prompt icons (Nerd Font)
 
 cask "font-meslo-lg-nerd-font"        # Powerline + Nerd Font icons
 

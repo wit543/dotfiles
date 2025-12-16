@@ -4,41 +4,56 @@
 #                    github.com/wit543/dotfiles
 # ============================================================================
 # Supports: macOS, Ubuntu, Rocky Linux, Manjaro
+# Stack: Zinit (plugin manager) + Starship (prompt) + zoxide (cd)
 # ============================================================================
 
 # ============================================================================
-# POWERLEVEL10K INSTANT PROMPT
+# ZINIT INITIALIZATION
 # ============================================================================
-# NOTE: Must stay near top of .zshrc for instant prompt to work
-# Disable if you have console output during shell startup
-typeset -g POWERLEVEL9K_INSTANT_PROMPT=off
+# NOTE: Zinit auto-installs on first shell startup
 
-if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
-    source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
+ZINIT_HOME="${XDG_DATA_HOME:-${HOME}/.local/share}/zinit/zinit.git"
+
+# Auto-install Zinit if not present
+if [[ ! -d "$ZINIT_HOME" ]]; then
+    print -P "%F{33}Installing Zinit...%f"
+    mkdir -p "$(dirname $ZINIT_HOME)"
+    git clone https://github.com/zdharma-continuum/zinit.git "$ZINIT_HOME" && \
+        print -P "%F{34}Zinit installed successfully%f" || \
+        print -P "%F{160}Zinit installation failed%f"
 fi
 
+source "${ZINIT_HOME}/zinit.zsh"
+
 # ============================================================================
-# OH-MY-ZSH CONFIGURATION
+# ZINIT PLUGINS (Turbo Mode - loads asynchronously after prompt)
 # ============================================================================
-# NOTE: Install oh-my-zsh first: https://ohmyz.sh/
+# NOTE: wait"0" = load immediately after prompt displays (~40ms startup)
 
-export ZSH="$HOME/.oh-my-zsh"
-ZSH_THEME="powerlevel10k/powerlevel10k"
+# Oh-My-Zsh snippets (load synchronously for critical functionality)
+zinit snippet OMZL::git.zsh
+zinit snippet OMZP::git
 
-# Standard oh-my-zsh plugins
-# NOTE: These are bundled with oh-my-zsh, no extra installation needed
-plugins=(
-    git            # Git aliases and functions (ga, gc, gp, etc.)
-    z              # Jump to frecent directories (z <partial-path>)
-    fzf            # Fuzzy finder integration
-    extract        # Extract any archive with 'x' command
-    docker         # Docker autocompletion
-    docker-compose # Docker-compose autocompletion
-    dotenv         # Auto-load .env files
-)
+# Async plugins (Turbo mode)
+zinit wait lucid for \
+    OMZP::fzf \
+    OMZP::extract \
+    OMZP::docker \
+    OMZP::docker-compose \
+    OMZP::dotenv
 
-# Load oh-my-zsh
-[[ -f $ZSH/oh-my-zsh.sh ]] && source $ZSH/oh-my-zsh.sh
+# External plugins with Turbo mode
+zinit wait lucid for \
+    atinit"zicompinit; zicdreplay" \
+        zsh-users/zsh-syntax-highlighting \
+    atload"_zsh_autosuggest_start" \
+        zsh-users/zsh-autosuggestions \
+    blockf atpull'zinit creinstall -q .' \
+        zsh-users/zsh-completions \
+    zsh-users/zsh-history-substring-search \
+    urbainvaes/fzf-marks \
+    hchbaw/zce.zsh \
+    changyuheng/zsh-interactive-cd
 
 # ============================================================================
 # HISTORY
@@ -87,13 +102,64 @@ alias vi="nvim"
 alias v="nvim"
 
 # ============================================================================
-# ALIASES - FILE & DIRECTORY
+# ALIASES - MODERN CLI TOOLS (with silent fallbacks)
 # ============================================================================
+# NOTE: Uses modern Rust tools if available, falls back to traditional
 
-alias ls="ls --color=auto"
-alias ll="ls -lah"
-alias la="ls -A"
-alias l="ls -CF"
+# ls -> eza
+if command -v eza &>/dev/null; then
+    alias ls="eza --color=auto --icons"
+    alias ll="eza -lah --icons --git"
+    alias la="eza -a --icons"
+    alias l="eza -F --icons"
+    alias lt="eza --tree --icons"
+    alias tree="eza --tree --icons"
+else
+    alias ls="ls --color=auto"
+    alias ll="ls -lah"
+    alias la="ls -A"
+    alias l="ls -CF"
+fi
+
+# cat -> bat
+if command -v bat &>/dev/null; then
+    alias cat="bat --paging=never --style=plain"
+    alias catp="bat"  # with pager and full styling
+    alias bathelp='bat --plain --language=help'
+    help() { "$@" --help 2>&1 | bathelp; }
+else
+    alias catp="less"
+fi
+
+# du -> dust
+if command -v dust &>/dev/null; then
+    alias du="dust"
+    alias duf="dust -f"  # show files too
+fi
+
+# ps -> procs
+if command -v procs &>/dev/null; then
+    alias psa="procs"
+    alias pst="procs --tree"
+fi
+
+# find -> fd (keep find available)
+if command -v fd &>/dev/null; then
+    alias f="fd"
+elif command -v fdfind &>/dev/null; then
+    # Debian/Ubuntu names it fdfind
+    alias fd="fdfind"
+    alias f="fdfind"
+fi
+
+# sed -> sd (keep sed available)
+if command -v sd &>/dev/null; then
+    alias replace="sd"
+fi
+
+# ============================================================================
+# ALIASES - DIRECTORY NAVIGATION
+# ============================================================================
 
 alias ..="cd .."
 alias ...="cd ../.."
@@ -129,12 +195,19 @@ alias py="python3"
 # ============================================================================
 # ALIASES - GIT SHORTCUTS
 # ============================================================================
-# NOTE: More git aliases defined by oh-my-zsh git plugin
+# NOTE: More git aliases defined by Zinit OMZP::git snippet
 
 alias gs="git status"
 alias gd="git diff"
 alias gds="git diff --staged"
 alias glog="git log --oneline --graph --decorate -20"
+
+# ============================================================================
+# ALIASES - TUI PRODUCTIVITY TOOLS
+# ============================================================================
+
+alias lg="lazygit"
+alias lzd="lazydocker"
 
 # ============================================================================
 # CUSTOM FUNCTIONS
@@ -160,50 +233,6 @@ psg() {
 }
 
 # ============================================================================
-# ZSH PLUGINS (External - via source-git)
-# ============================================================================
-# NOTE: These are cloned to ~/.zsh/ on first use
-
-# Helper function to clone and source plugins
-source-git() {
-    local repo="$1"
-    local target="$HOME/.zsh/${repo:t:r}"
-    local plugin="$target/${repo:t:r}.plugin.zsh"
-
-    # Clone if not exists
-    [[ ! -d "$target" ]] && git clone --depth=1 "$repo" "$target"
-
-    # Try .plugin.zsh first, then bare name
-    [[ ! -f "$plugin" ]] && plugin="$target/${repo:t:r}"
-
-    [[ -f "$plugin" ]] && source "$plugin"
-}
-
-# Fuzzy directory jumping (integrates with fzf + z)
-source-git https://github.com/supasorn/fzf-z.git
-
-# Interactive cd with fzf
-source-git https://github.com/changyuheng/zsh-interactive-cd.git
-
-# Suggestions based on history (gray text)
-source-git https://github.com/zsh-users/zsh-autosuggestions.git
-
-# Quick navigation (Ctrl+F to jump)
-source-git https://github.com/hchbaw/zce.zsh.git
-
-# Bookmark directories (Ctrl+G to mark, Ctrl+H to jump)
-source-git https://github.com/urbainvaes/fzf-marks
-
-# Additional completions
-source-git https://github.com/zsh-users/zsh-completions
-
-# History substring search (Up/Down arrows)
-source-git https://github.com/zsh-users/zsh-history-substring-search
-
-# Syntax highlighting (MUST be last plugin)
-source-git https://github.com/zsh-users/zsh-syntax-highlighting.git
-
-# ============================================================================
 # KEY BINDINGS
 # ============================================================================
 
@@ -226,7 +255,6 @@ ZSH_AUTOSUGGEST_STRATEGY=(history completion)
 export FZF_DEFAULT_OPTS="--reverse --height=40%"
 export FZF_CTRL_R_OPTS="--reverse"
 export FZF_MARKS_JUMP="^h"         # Ctrl+H to jump to mark
-export FZFZ_SUBDIR_LIMIT=0
 
 # ============================================================================
 # FZF INTEGRATION
@@ -239,9 +267,8 @@ export FZFZ_SUBDIR_LIMIT=0
 # COMPLETIONS
 # ============================================================================
 
-autoload -Uz compinit
-compinit -C  # -C: skip security check for faster startup
-
+# Zinit handles compinit via zicompinit in turbo mode
+# Additional completion settings:
 zstyle ':completion:*' menu select                 # Menu selection
 zstyle ':completion:*' matcher-list 'm:{a-z}={A-Z}' # Case insensitive
 
@@ -347,11 +374,23 @@ elif [[ -d "/usr/share/google-cloud-sdk" ]]; then
 fi
 
 # ============================================================================
-# POWERLEVEL10K THEME
+# ZOXIDE (Directory Jumping)
 # ============================================================================
-# NOTE: Run 'p10k configure' to customize prompt
+# NOTE: Replaces z/autojump with smarter frecency-based navigation
+# Usage: z <partial-path>, zi for interactive selection
 
-[[ -f ~/.p10k.zsh ]] && source ~/.p10k.zsh
+if command -v zoxide &>/dev/null; then
+    eval "$(zoxide init zsh)"
+    alias cdi="zi"    # Interactive selection with fzf
+fi
+
+# ============================================================================
+# STARSHIP PROMPT
+# ============================================================================
+# NOTE: Cross-shell prompt written in Rust
+# Config: ~/.config/starship.toml
+
+eval "$(starship init zsh)"
 
 # ============================================================================
 # LOCAL CONFIGURATION

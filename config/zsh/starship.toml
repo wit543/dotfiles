@@ -1,0 +1,158 @@
+# ============================================================================
+#                         STARSHIP CONFIGURATION
+#                    github.com/wit543/dotfiles
+# ============================================================================
+# Style: P10k-like two-line prompt with icons, git details, execution time
+# Docs: https://starship.rs/config/
+# ============================================================================
+
+format = """
+[╭─](bold blue)$username$hostname$directory$git_branch$git_status$git_state$python$nodejs$golang$rust$docker_context$kubernetes$aws$gcloud$cmd_duration
+[╰─](bold blue)$character"""
+
+# ============================================================================
+# PROMPT CHARACTER
+# ============================================================================
+
+[character]
+success_symbol = "[❯](bold green)"
+error_symbol = "[❯](bold red)"
+vimcmd_symbol = "[❮](bold green)"
+
+# ============================================================================
+# USER & HOST
+# ============================================================================
+
+[username]
+style_user = "bold yellow"
+style_root = "bold red"
+format = "[$user]($style) "
+show_always = false
+
+[hostname]
+ssh_only = true
+format = "[@$hostname](bold green) "
+
+# ============================================================================
+# DIRECTORY
+# ============================================================================
+
+[directory]
+style = "bold cyan"
+format = "[$path]($style)[$read_only]($read_only_style) "
+truncation_length = 4
+truncate_to_repo = true
+read_only = " 󰌾"
+
+# ============================================================================
+# GIT
+# ============================================================================
+
+[git_branch]
+symbol = " "
+style = "bold purple"
+format = "[$symbol$branch(:$remote_branch)]($style) "
+
+[git_status]
+format = '([\[$all_status$ahead_behind\]]($style) )'
+style = "bold yellow"
+conflicted = "="
+ahead = "⇡${count}"
+behind = "⇣${count}"
+diverged = "⇕⇡${ahead_count}⇣${behind_count}"
+untracked = "?${count}"
+stashed = "*"
+modified = "!${count}"
+staged = "+${count}"
+renamed = "»"
+deleted = "✘"
+
+[git_state]
+format = '\([$state( $progress_current/$progress_total)]($style)\) '
+style = "bold yellow"
+
+# ============================================================================
+# EXECUTION TIME
+# ============================================================================
+
+[cmd_duration]
+min_time = 2_000
+format = "took [$duration](bold yellow) "
+
+# ============================================================================
+# LANGUAGES & RUNTIMES
+# ============================================================================
+
+[python]
+symbol = " "
+format = '[${symbol}${pyenv_prefix}(${version})(\($virtualenv\))]($style) '
+style = "bold yellow"
+
+[nodejs]
+symbol = " "
+format = "[$symbol($version)]($style) "
+style = "bold green"
+
+[golang]
+symbol = " "
+format = "[$symbol($version)]($style) "
+style = "bold cyan"
+
+[rust]
+symbol = " "
+format = "[$symbol($version)]($style) "
+style = "bold red"
+
+[java]
+symbol = " "
+format = "[$symbol($version)]($style) "
+style = "bold red"
+
+# ============================================================================
+# CONTAINERS & CLOUD
+# ============================================================================
+
+[docker_context]
+symbol = " "
+format = "[$symbol$context]($style) "
+style = "bold blue"
+only_with_files = true
+
+[kubernetes]
+disabled = false
+symbol = "☸ "
+format = '[$symbol$context( \($namespace\))]($style) '
+style = "bold blue"
+
+[aws]
+symbol = "  "
+format = '[$symbol($profile)(\($region\))]($style) '
+style = "bold yellow"
+
+[gcloud]
+symbol = " "
+format = '[$symbol$account(@$domain)(\($project\))]($style) '
+style = "bold blue"
+
+# ============================================================================
+# PACKAGE VERSION
+# ============================================================================
+
+[package]
+symbol = "📦 "
+format = "[$symbol$version]($style) "
+style = "bold 208"
+
+# ============================================================================
+# DISABLED MODULES (for performance)
+# ============================================================================
+
+[battery]
+disabled = true
+
+[time]
+disabled = true
+
+# ============================================================================
+# END OF CONFIGURATION
+# ============================================================================

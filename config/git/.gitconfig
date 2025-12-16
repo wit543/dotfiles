@@ -29,6 +29,27 @@
     # Whitespace handling
     whitespace = fix,-indent-with-non-tab,trailing-space,cr-at-eol
 
+    # Pager - use delta for better diffs (falls back to less if not installed)
+    pager = delta
+
+# ============================================================================
+# DELTA (Better Git Diff Viewer)
+# ============================================================================
+# NOTE: Provides syntax highlighting and side-by-side diffs
+# Install: brew install git-delta (macOS) or cargo install git-delta
+
+[interactive]
+    diffFilter = delta --color-only
+
+[delta]
+    navigate = true        # use n/N to jump between diff sections
+    side-by-side = false   # set to true for side-by-side view
+    line-numbers = true    # show line numbers
+    syntax-theme = Dracula # syntax highlighting theme
+
+[diff]
+    colorMoved = default   # highlight moved lines differently
+
 # ============================================================================
 # REPOSITORY DEFAULTS
 # ============================================================================
@@ -91,12 +112,9 @@
 # DIFF / MERGE TOOLS
 # ============================================================================
 
-[diff]
-    tool = vimdiff
-
 [merge]
     tool = vimdiff
-    # Show base version in conflicts
+    # Show base version in conflicts (works well with delta)
     conflictstyle = diff3
 
 # ============================================================================

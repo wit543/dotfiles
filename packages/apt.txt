@@ -32,9 +32,28 @@ jq                                    # JSON processor
 htop                                  # Interactive process viewer
 
 # ----------------------------------------------------------------------------
+# SHELL - PROMPT & PLUGINS
+# ----------------------------------------------------------------------------
+# NOTE: starship, zoxide installed via official install scripts (see install.sh)
+# NOTE: Zinit auto-installs on first shell startup
+
+# ----------------------------------------------------------------------------
+# MODERN CLI REPLACEMENTS (via install scripts)
+# ----------------------------------------------------------------------------
+# NOTE: eza, git-delta, dust, procs, sd installed via cargo or binary releases
+#       (not in standard apt repos - install.sh handles these)
+eza                                   # ls replacement (available in newer Ubuntu)
+
+# ----------------------------------------------------------------------------
+# TUI PRODUCTIVITY TOOLS
+# ----------------------------------------------------------------------------
+# NOTE: lazygit, lazydocker installed from GitHub releases (see install.sh)
+
+# ----------------------------------------------------------------------------
 # BUILD ESSENTIALS
 # ----------------------------------------------------------------------------
 build-essential                       # gcc, g++, make, etc.
+cargo                                 # Rust package manager (for modern CLI tools)
 
 # ============================================================================
 # END OF APT PACKAGES

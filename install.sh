@@ -72,58 +72,51 @@ detect_os
 # ============================================================================
 # ZSH SETUP
 # ============================================================================
-# NOTE: Installs Oh My Zsh, Powerlevel10k theme, and useful plugins
+# NOTE: Installs Zinit (plugin manager), Starship (prompt), zoxide (cd)
 
 setup_zsh() {
-    log_info "Setting up Zsh..."
+    log_info "Setting up Zsh with Zinit + Starship..."
 
     # --------------------------
-    # Oh My Zsh
+    # Zinit (Plugin Manager)
     # --------------------------
-    if [[ ! -d "$HOME/.oh-my-zsh" ]]; then
-        log_info "Installing Oh My Zsh..."
-        sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
+    # NOTE: Zinit auto-installs on first shell startup via .zshrc
+    #       This pre-install ensures it's ready before first use
+    local ZINIT_HOME="${XDG_DATA_HOME:-${HOME}/.local/share}/zinit/zinit.git"
+    if [[ ! -d "$ZINIT_HOME" ]]; then
+        log_info "Installing Zinit..."
+        mkdir -p "$(dirname "$ZINIT_HOME")"
+        git clone https://github.com/zdharma-continuum/zinit.git "$ZINIT_HOME"
     else
-        log_success "Oh My Zsh already installed"
+        log_success "Zinit already installed"
         if $UPDATE_MODE; then
-            git_update "$HOME/.oh-my-zsh"
+            git_update "$ZINIT_HOME"
         fi
     fi
 
     # --------------------------
-    # Powerlevel10k Theme
+    # Starship (Prompt)
     # --------------------------
-    git_clone "https://github.com/romkatv/powerlevel10k.git" \
-              "$HOME/.oh-my-zsh/themes/powerlevel10k"
-    if $UPDATE_MODE; then
-        git_update "$HOME/.oh-my-zsh/themes/powerlevel10k"
+    if ! command_exists starship; then
+        log_info "Installing Starship..."
+        curl -sS https://starship.rs/install.sh | sh -s -- -y
+    else
+        log_success "Starship already installed"
+        if $UPDATE_MODE && ! is_macos; then
+            # Update starship (macOS updates via brew)
+            curl -sS https://starship.rs/install.sh | sh -s -- -y
+        fi
     fi
 
     # --------------------------
-    # Zsh Plugins
+    # Zoxide (Directory Jumping)
     # --------------------------
-    mkdir -p "$HOME/.zsh"
-
-    # Pre-clone plugins for faster shell startup
-    local zsh_plugins=(
-        "https://github.com/zsh-users/zsh-autosuggestions"      # History-based suggestions
-        "https://github.com/zsh-users/zsh-syntax-highlighting"  # Command highlighting
-        "https://github.com/zsh-users/zsh-completions"          # Extra completions
-        "https://github.com/zsh-users/zsh-history-substring-search"  # Better history search
-        "https://github.com/supasorn/fzf-z"                     # Fuzzy z integration
-        "https://github.com/changyuheng/zsh-interactive-cd"     # Interactive cd with fzf
-        "https://github.com/hchbaw/zce.zsh"                     # Quick navigation
-        "https://github.com/urbainvaes/fzf-marks"               # Bookmark directories
-    )
-
-    for plugin_url in "${zsh_plugins[@]}"; do
-        local plugin_name
-        plugin_name=$(basename "$plugin_url" .git)
-        git_clone "$plugin_url" "$HOME/.zsh/$plugin_name"
-        if $UPDATE_MODE; then
-            git_update "$HOME/.zsh/$plugin_name"
-        fi
-    done
+    if ! command_exists zoxide; then
+        log_info "Installing zoxide..."
+        curl -sS https://raw.githubusercontent.com/ajeetdsouza/zoxide/main/install.sh | bash
+    else
+        log_success "zoxide already installed"
+    fi
 
     # --------------------------
     # FZF (Fuzzy Finder)
@@ -133,16 +126,77 @@ setup_zsh() {
         git_update "$HOME/.fzf"
     fi
     if [[ -f "$HOME/.fzf/install" ]]; then
-        "$HOME/.fzf/install" --all --no-bash --no-fish --no-update-rc
+        "$HOME/.fzf/install" --key-bindings --completion --no-update-rc --no-bash --no-fish
     fi
+
+    # --------------------------
+    # TUI Tools (Linux only - macOS uses brew)
+    # --------------------------
+    if is_linux; then
+        install_lazygit
+        install_lazydocker
+    fi
+
+    # --------------------------
+    # Starship Config Directory
+    # --------------------------
+    mkdir -p "$HOME/.config"
 
     # --------------------------
     # Symlinks
     # --------------------------
     symlink "$DOTFILES_DIR/config/zsh/.zshrc" "$HOME/.zshrc"
-    symlink "$DOTFILES_DIR/config/zsh/.p10k.zsh" "$HOME/.p10k.zsh"
+    symlink "$DOTFILES_DIR/config/zsh/starship.toml" "$HOME/.config/starship.toml"
 
     log_success "Zsh setup complete"
+}
+
+# ============================================================================
+# LAZYGIT INSTALLATION (Linux)
+# ============================================================================
+
+install_lazygit() {
+    if command_exists lazygit; then
+        log_success "lazygit already installed"
+        return 0
+    fi
+
+    log_info "Installing lazygit..."
+    local LAZYGIT_VERSION
+    LAZYGIT_VERSION=$(curl -s "https://api.github.com/repos/jesseduffield/lazygit/releases/latest" | grep -Po '"tag_name": "v\K[^"]*')
+
+    if [[ -n "$LAZYGIT_VERSION" ]]; then
+        local arch
+        arch=$(uname -m)
+        case "$arch" in
+            x86_64) arch="x86_64" ;;
+            aarch64) arch="arm64" ;;
+            *) log_warn "Unsupported architecture for lazygit: $arch"; return 1 ;;
+        esac
+
+        curl -Lo /tmp/lazygit.tar.gz "https://github.com/jesseduffield/lazygit/releases/latest/download/lazygit_${LAZYGIT_VERSION}_Linux_${arch}.tar.gz"
+        tar xf /tmp/lazygit.tar.gz -C /tmp lazygit
+        install /tmp/lazygit "$HOME/.local/bin/lazygit" 2>/dev/null || sudo install /tmp/lazygit /usr/local/bin/lazygit
+        rm -f /tmp/lazygit.tar.gz /tmp/lazygit
+        log_success "lazygit installed"
+    else
+        log_warn "Could not determine lazygit version"
+    fi
+}
+
+# ============================================================================
+# LAZYDOCKER INSTALLATION (Linux)
+# ============================================================================
+
+install_lazydocker() {
+    if command_exists lazydocker; then
+        log_success "lazydocker already installed"
+        return 0
+    fi
+
+    log_info "Installing lazydocker..."
+    curl https://raw.githubusercontent.com/jesseduffield/lazydocker/master/scripts/install_update_linux.sh | bash
+    log_success "lazydocker installed"
 }
 
 # ============================================================================
@@ -240,6 +294,85 @@ setup_git() {
     symlink "$DOTFILES_DIR/config/git/.gitconfig" "$HOME/.gitconfig"
 
     log_success "Git setup complete"
+}
+
+# ============================================================================
+# VSCODE SETUP
+# ============================================================================
+# NOTE: Syncs settings and installs extensions
+
+setup_vscode() {
+    log_info "Setting up VSCode..."
+
+    # Determine VSCode settings path based on OS
+    local vscode_settings_dir
+    if is_macos; then
+        vscode_settings_dir="$HOME/Library/Application Support/Code/User"
+    else
+        vscode_settings_dir="$HOME/.config/Code/User"
+    fi
+
+    # Check if VSCode is installed
+    if ! command_exists code; then
+        log_warn "VSCode not installed, skipping settings sync"
+        log_info "Install VSCode first, then run: ./install.sh --update"
+        return 0
+    fi
+
+    # --------------------------
+    # Settings
+    # --------------------------
+    mkdir -p "$vscode_settings_dir"
+    symlink "$DOTFILES_DIR/config/vscode/settings.json" "$vscode_settings_dir/settings.json"
+
+    # --------------------------
+    # Extensions
+    # --------------------------
+    if [[ -f "$DOTFILES_DIR/config/vscode/extensions.txt" ]]; then
+        log_info "Installing VSCode extensions..."
+        local extension
+        while IFS= read -r line; do
+            # Skip comments and empty lines
+            [[ "$line" =~ ^#.*$ ]] && continue
+            [[ -z "$line" ]] && continue
+
+            # Extract extension ID (first word, ignore comments)
+            extension=$(echo "$line" | awk '{print $1}')
+            [[ -z "$extension" ]] && continue
+
+            # Install extension (silently skip if already installed)
+            code --install-extension "$extension" --force 2>/dev/null || true
+        done < "$DOTFILES_DIR/config/vscode/extensions.txt"
+        log_success "VSCode extensions installed"
+    fi
+
+    log_success "VSCode setup complete"
+}
+
+# ============================================================================
+# CLAUDE CODE SETUP
+# ============================================================================
+# NOTE: Sets up Claude Code CLI with global standards
+
+setup_claude() {
+    log_info "Setting up Claude Code..."
+
+    # --------------------------
+    # Global Claude Directory
+    # --------------------------
+    mkdir -p "$HOME/.claude"
+
+    # --------------------------
+    # Global Settings
+    # --------------------------
+    symlink "$DOTFILES_DIR/config/claude/settings.json" "$HOME/.claude/settings.json"
+
+    # --------------------------
+    # Global CLAUDE.md (coding standards)
+    # --------------------------
+    symlink "$DOTFILES_DIR/config/claude/CLAUDE.md" "$HOME/.claude/CLAUDE.md"
+
+    log_success "Claude Code setup complete"
 }
 
 # ============================================================================
@@ -380,6 +513,8 @@ main() {
     setup_vim
     setup_tmux
     setup_git
+    setup_vscode
+    setup_claude
 
     # --------------------------
     # OS-Specific Setup

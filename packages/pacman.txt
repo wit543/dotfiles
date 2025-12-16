@@ -25,6 +25,13 @@ fd                                    # Fast find
 tree                                  # Directory tree view
 
 # ----------------------------------------------------------------------------
+# SHELL - PROMPT & PLUGINS
+# ----------------------------------------------------------------------------
+# NOTE: Zinit auto-installs on first shell startup
+starship                              # Cross-shell prompt (replaces P10k)
+zoxide                                # Smarter cd command (replaces z)
+
+# ----------------------------------------------------------------------------
 # MODERN CLI TOOLS
 # ----------------------------------------------------------------------------
 bat                                   # cat with syntax highlighting
@@ -33,9 +40,24 @@ jq                                    # JSON processor
 htop                                  # Interactive process viewer
 
 # ----------------------------------------------------------------------------
+# MODERN CLI REPLACEMENTS
+# ----------------------------------------------------------------------------
+git-delta                             # Better git diff viewer
+dust                                  # du replacement (disk usage)
+procs                                 # ps replacement (process viewer)
+sd                                    # sed replacement (find & replace)
+
+# ----------------------------------------------------------------------------
+# TUI PRODUCTIVITY TOOLS
+# ----------------------------------------------------------------------------
+lazygit                               # Git TUI (lg)
+lazydocker                            # Docker TUI (lzd)
+
+# ----------------------------------------------------------------------------
 # DEVELOPMENT TOOLS
 # ----------------------------------------------------------------------------
 base-devel                            # Build tools (gcc, make, etc.)
+rust                                  # Rust toolchain (for modern CLI tools)
 
 # ============================================================================
 # END OF PACMAN PACKAGES

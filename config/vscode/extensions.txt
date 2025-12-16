@@ -1,0 +1,102 @@
+# ============================================================================
+#                         VSCODE EXTENSIONS
+#                    github.com/wit543/dotfiles
+# ============================================================================
+# Install all: cat extensions.txt | grep -v '^#' | xargs -L 1 code --install-extension
+# ============================================================================
+
+# ----------------------------------------------------------------------------
+# THEMES & APPEARANCE
+# ----------------------------------------------------------------------------
+zhuangtongfa.material-theme           # One Dark Pro theme
+pkief.material-icon-theme             # Material icons for file explorer
+oderwat.indent-rainbow                # Colorize indentation levels
+
+# ----------------------------------------------------------------------------
+# EDITOR ENHANCEMENTS
+# ----------------------------------------------------------------------------
+esbenp.prettier-vscode                # Code formatter (JS/TS/CSS/HTML/JSON)
+usernamehw.errorlens                  # Show errors inline
+streetsidesoftware.code-spell-checker # Spell checker
+wayou.vscode-todo-highlight           # Highlight TODO/FIXME comments
+aaron-bond.better-comments            # Colorize comments by type
+christian-kohler.path-intellisense    # Autocomplete file paths
+formulahendry.auto-rename-tag         # Auto rename paired HTML tags
+formulahendry.auto-close-tag          # Auto close HTML tags
+
+# ----------------------------------------------------------------------------
+# GIT
+# ----------------------------------------------------------------------------
+eamodio.gitlens                       # Git supercharged
+mhutchie.git-graph                    # Visual git graph
+
+# ----------------------------------------------------------------------------
+# PYTHON
+# ----------------------------------------------------------------------------
+ms-python.python                      # Python language support
+ms-python.vscode-pylance              # Python language server
+ms-python.black-formatter             # Black formatter
+ms-python.isort                       # Import sorting
+
+# ----------------------------------------------------------------------------
+# JAVASCRIPT / TYPESCRIPT
+# ----------------------------------------------------------------------------
+dbaeumer.vscode-eslint                # ESLint integration
+dsznajder.es7-react-js-snippets       # React/Redux snippets
+bradlc.vscode-tailwindcss             # Tailwind CSS IntelliSense
+
+# ----------------------------------------------------------------------------
+# GO
+# ----------------------------------------------------------------------------
+golang.go                             # Go language support
+
+# ----------------------------------------------------------------------------
+# DOCKER & DEVOPS
+# ----------------------------------------------------------------------------
+ms-azuretools.vscode-docker           # Docker support
+ms-kubernetes-tools.vscode-kubernetes-tools  # Kubernetes support
+redhat.vscode-yaml                    # YAML support
+hashicorp.terraform                   # Terraform support
+
+# ----------------------------------------------------------------------------
+# SHELL & SCRIPTING
+# ----------------------------------------------------------------------------
+foxundermoon.shell-format             # Shell script formatter
+timonwong.shellcheck                  # Shell script linter
+ms-vscode.makefile-tools              # Makefile support
+
+# ----------------------------------------------------------------------------
+# MARKDOWN & DOCS
+# ----------------------------------------------------------------------------
+yzhang.markdown-all-in-one            # Markdown tools
+bierner.markdown-preview-github-styles # GitHub-style preview
+davidanson.vscode-markdownlint        # Markdown linter
+
+# ----------------------------------------------------------------------------
+# REMOTE DEVELOPMENT
+# ----------------------------------------------------------------------------
+ms-vscode-remote.remote-ssh           # Remote SSH development
+ms-vscode-remote.remote-containers    # Dev containers
+ms-vscode.remote-explorer             # Remote explorer
+
+# ----------------------------------------------------------------------------
+# AI ASSISTANTS
+# ----------------------------------------------------------------------------
+github.copilot                        # GitHub Copilot
+github.copilot-chat                   # Copilot Chat
+
+# ----------------------------------------------------------------------------
+# PRODUCTIVITY
+# ----------------------------------------------------------------------------
+alefragnani.project-manager           # Project manager
+gruntfuggly.todo-tree                 # TODO tree view
+humao.rest-client                     # REST API client
+
+# ----------------------------------------------------------------------------
+# VIM (Optional - uncomment if you want Vim keybindings)
+# ----------------------------------------------------------------------------
+# vscodevim.vim                       # Vim emulation
+
+# ============================================================================
+# END OF EXTENSIONS
+# ============================================================================

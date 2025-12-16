@@ -31,13 +31,37 @@ cd ~/dotfiles
 
 ### Shell (Zsh)
 
-- **Oh My Zsh** with Powerlevel10k theme
-- **Plugins**: fzf, z, git, docker, syntax-highlighting, autosuggestions
+- **Zinit** (plugin manager) - Fast, Turbo mode for async plugin loading
+- **Starship** (prompt) - Cross-shell, Rust-based, P10k-style theme
+- **zoxide** (cd replacement) - Smarter directory jumping with frecency
+- **Plugins**: fzf, git, docker, syntax-highlighting, autosuggestions
 - **FZF** for fuzzy finding (Ctrl+R for history, Ctrl+T for files)
 - **Key bindings**:
   - `Ctrl+F` - Quick jump (zce)
   - `Shift+Tab` - Accept suggestion
   - `Ctrl+H` - Jump to bookmark
+
+### Modern CLI Tools (with fallbacks)
+
+| Modern | Traditional | Description |
+|--------|-------------|-------------|
+| eza | ls | File listing with icons and git |
+| bat | cat | Syntax highlighting |
+| delta | diff | Better git diffs |
+| dust | du | Disk usage visualization |
+| procs | ps | Process viewer |
+| fd | find | Fast file finder |
+| sd | sed | Find & replace |
+| ripgrep | grep | Fast search |
+
+*Note: Falls back silently to traditional tools if modern versions unavailable*
+
+### TUI Productivity Tools
+
+| Tool | Alias | Description |
+|------|-------|-------------|
+| lazygit | `lg` | Git terminal UI |
+| lazydocker | `lzd` | Docker terminal UI |
 
 ### Editor (Neovim/Vim)
 
@@ -62,6 +86,28 @@ cd ~/dotfiles
   - Mouse support enabled
   - Session auto-restore
   - Vi copy mode
+
+### VSCode
+
+- **Word wrap enabled by default**
+- **Format on save**
+- **40+ extensions** for Python, JavaScript/TypeScript, Go, Docker, etc.
+- **Themes**: One Dark Pro, Material Icons
+- **Key settings**:
+  - Tab size: 4 (2 for JS/TS/JSON/YAML)
+  - Font: MesloLGS NF with ligatures
+  - Auto-save enabled
+  - Trailing whitespace trimming
+
+### Claude Code
+
+- **Global CLAUDE.md** with coding standards across all projects
+- **Pre-approved commands** for safe operations (git, npm, pytest, etc.)
+- **Coding standards**:
+  - Conventional commits format
+  - Language-specific style guides
+  - Security best practices
+  - Testing requirements
 
 ### macOS Apps (via Homebrew)
 
@@ -94,8 +140,8 @@ dotfiles/
 │   └── packages.sh        # Package manager abstraction
 ├── config/
 │   ├── zsh/               # Zsh configuration
-│   │   ├── .zshrc         # Main config
-│   │   └── .p10k.zsh      # Powerlevel10k theme
+│   │   ├── .zshrc         # Main config (Zinit + Starship)
+│   │   └── starship.toml  # Starship prompt theme
 │   ├── vim/               # Vim configuration
 │   │   ├── .vimrc         # Main config
 │   │   ├── .gvimrc        # GUI config
@@ -106,8 +152,14 @@ dotfiles/
 │   ├── tmux/              # Tmux configuration
 │   │   ├── .tmux.conf     # Base config (gpakosz)
 │   │   └── .tmux.conf.local # User customizations
-│   └── git/               # Git configuration
-│       └── .gitconfig     # Global git config
+│   ├── git/               # Git configuration
+│   │   └── .gitconfig     # Global git config (with delta)
+│   ├── vscode/            # VSCode configuration
+│   │   ├── settings.json  # User settings
+│   │   └── extensions.txt # Extensions list
+│   └── claude/            # Claude Code configuration
+│       ├── CLAUDE.md      # Global coding standards
+│       └── settings.json  # Permissions & settings
 └── packages/
     ├── Brewfile           # macOS packages
     ├── apt.txt            # Ubuntu/Debian packages
@@ -139,6 +191,62 @@ Edit the appropriate package file:
 - **Rocky**: `packages/dnf.txt`
 - **Manjaro**: `packages/pacman.txt`
 
+### Starship Prompt Customization
+
+Edit `~/.config/starship.toml` to customize the prompt:
+
+```toml
+# Change prompt character
+[character]
+success_symbol = "[➜](bold green)"
+error_symbol = "[✗](bold red)"
+
+# Disable git status
+[git_status]
+disabled = true
+```
+
+See [Starship docs](https://starship.rs/config/) for all options.
+
+### VSCode Settings
+
+Edit `~/dotfiles/config/vscode/settings.json` directly - it's symlinked to your VSCode config.
+
+To add/remove extensions, edit `~/dotfiles/config/vscode/extensions.txt`:
+
+```bash
+# Add extension
+echo "publisher.extension-name" >> ~/dotfiles/config/vscode/extensions.txt
+
+# Install all extensions
+cat ~/dotfiles/config/vscode/extensions.txt | grep -v '^#' | xargs -L 1 code --install-extension
+```
+
+### Claude Code Settings
+
+Edit `~/dotfiles/config/claude/CLAUDE.md` to customize global coding standards:
+
+```markdown
+# Add project-specific rules
+## My Custom Rules
+- Always use TypeScript strict mode
+- Prefer functional components in React
+```
+
+Edit `~/dotfiles/config/claude/settings.json` to add pre-approved commands:
+
+```json
+{
+  "permissions": {
+    "allow": [
+      "Bash(my-custom-command:*)"
+    ]
+  }
+}
+```
+
+For project-specific overrides, create a `CLAUDE.md` in your project root.
+
 ### Conda Environment
 
 The `.zshrc` automatically detects and initializes Conda from common paths:
@@ -160,6 +268,25 @@ To use a specific environment by default, edit the `conda activate` line in `.zs
 | `Alt+C` | FZF cd to directory |
 | `Ctrl+F` | Quick jump (zce) |
 | `Shift+Tab` | Accept autosuggestion |
+| `z <path>` | Jump to directory (zoxide) |
+| `zi` | Interactive directory selection |
+
+### Modern Tool Aliases
+
+| Alias | Command | Description |
+|-------|---------|-------------|
+| `ls` | eza | List with icons |
+| `ll` | eza -lah | Long list with git status |
+| `lt` | eza --tree | Tree view |
+| `cat` | bat | View with syntax highlighting |
+| `catp` | bat (full) | With pager |
+| `du` | dust | Disk usage |
+| `psa` | procs | Process list |
+| `pst` | procs --tree | Process tree |
+| `f` | fd | Fast find |
+| `replace` | sd | Find & replace |
+| `lg` | lazygit | Git TUI |
+| `lzd` | lazydocker | Docker TUI |
 
 ### Vim/Neovim
 
@@ -189,12 +316,25 @@ To use a specific environment by default, edit the `conda activate` line in `.zs
 
 ## Troubleshooting
 
-### Zsh plugins not loading
+### Zinit plugins not loading
 
 ```bash
-# Reinstall plugins
-rm -rf ~/.zsh
+# Reinstall Zinit and plugins
+rm -rf ~/.local/share/zinit
 exec zsh
+```
+
+### Starship prompt not showing
+
+```bash
+# Verify starship is installed
+starship --version
+
+# Reinstall if needed
+curl -sS https://starship.rs/install.sh | sh
+
+# Check config
+starship config
 ```
 
 ### Vim plugins not installed
@@ -214,7 +354,7 @@ tmux
 # Then press: Ctrl+B, Shift+I
 ```
 
-### Powerlevel10k icons not showing
+### Icons not showing (boxes instead)
 
 Install a Nerd Font:
 
@@ -223,6 +363,51 @@ Install a Nerd Font:
 brew install --cask font-meslo-lg-nerd-font
 
 # Then set your terminal font to "MesloLGS NF"
+```
+
+### zoxide not jumping
+
+```bash
+# zoxide needs to learn directories first
+# Visit directories normally, then use z:
+cd ~/projects/myapp
+cd ~/documents
+z myapp  # Now it knows about myapp!
+```
+
+### VSCode settings not applying
+
+```bash
+# Check if settings are symlinked correctly
+ls -la ~/Library/Application\ Support/Code/User/settings.json  # macOS
+ls -la ~/.config/Code/User/settings.json                       # Linux
+
+# Re-run setup
+cd ~/dotfiles && ./install.sh --update
+```
+
+### VSCode extensions not installing
+
+```bash
+# Install manually
+code --install-extension publisher.extension-name
+
+# Or install all from list
+cat ~/dotfiles/config/vscode/extensions.txt | grep -v '^#' | xargs -L 1 code --install-extension
+```
+
+## Migration from Oh-My-Zsh
+
+If upgrading from the previous version with Oh-My-Zsh:
+
+```bash
+# Backup and remove old configs
+mv ~/.oh-my-zsh ~/.oh-my-zsh.bak
+rm -f ~/.p10k.zsh
+
+# Re-run installer
+cd ~/dotfiles && git pull
+./install.sh --update
 ```
 
 ## License
