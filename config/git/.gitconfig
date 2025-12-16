@@ -1,0 +1,104 @@
+# ============================================================================
+#                         GIT CONFIGURATION
+#                    github.com/wit543/dotfiles
+# ============================================================================
+# Global Git configuration
+# NOTE: Local overrides can be added to ~/.gitconfig.local
+# ============================================================================
+
+# ============================================================================
+# USER IDENTITY
+# ============================================================================
+
+[user]
+    name = Norawit Urailertprasert
+    email = norawit.ura@preceptorai.tech
+
+# ============================================================================
+# CORE SETTINGS
+# ============================================================================
+
+[core]
+    # Default editor for commit messages
+    editor = nvim
+
+    # Line ending handling
+    # NOTE: 'input' converts CRLF to LF on commit (good for macOS/Linux)
+    autocrlf = input
+
+    # Whitespace handling
+    whitespace = fix,-indent-with-non-tab,trailing-space,cr-at-eol
+
+# ============================================================================
+# REPOSITORY DEFAULTS
+# ============================================================================
+
+[init]
+    # Default branch name for new repositories
+    defaultBranch = main
+
+# ============================================================================
+# PULL / PUSH BEHAVIOR
+# ============================================================================
+
+[pull]
+    # Rebase instead of merge when pulling
+    rebase = true
+
+[push]
+    # Push to the current branch on the remote
+    default = current
+
+# ============================================================================
+# COLORS
+# ============================================================================
+
+[color]
+    # Enable colored output
+    ui = auto
+
+# ============================================================================
+# ALIASES
+# ============================================================================
+# NOTE: Common shortcuts for frequently used commands
+
+[alias]
+    # Status
+    st = status
+
+    # Checkout
+    co = checkout
+
+    # Branch
+    br = branch
+
+    # Commit
+    ci = commit
+
+    # Log - compact with graph
+    lg = log --oneline --graph --decorate
+
+    # Show last commit
+    last = log -1 HEAD
+
+    # Unstage changes
+    unstage = reset HEAD --
+
+    # Amend last commit without changing message
+    amend = commit --amend --no-edit
+
+# ============================================================================
+# DIFF / MERGE TOOLS
+# ============================================================================
+
+[diff]
+    tool = vimdiff
+
+[merge]
+    tool = vimdiff
+    # Show base version in conflicts
+    conflictstyle = diff3
+
+# ============================================================================
+# END OF CONFIGURATION
+# ============================================================================

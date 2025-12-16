@@ -1,0 +1,379 @@
+# ============================================================================
+#                         TMUX LOCAL CONFIGURATION
+#                    github.com/wit543/dotfiles
+# ============================================================================
+# User customizations for gpakosz/.tmux configuration
+# NOTE: This file overrides settings from .tmux.conf
+# ============================================================================
+
+# https://github.com/gpakosz/.tmux
+# (‑●‑●)> dual licensed under the WTFPL v2 license and the MIT license,
+#         without any warranty.
+#         Copyright 2012— Gregory Pakosz (@gpakosz).
+
+# ============================================================================
+# NAVIGATION
+# ============================================================================
+# NOTE: iTerm2 + tmux 1.9/1.9a configuration for Meta + arrow keys
+# Uncomment if iTerm2 option key is set to +Esc and sends [1;9A -> [1;9D
+
+#set -ga terminal-overrides "*:kUP3=\e[1;9A,*:kDN3=\e[1;9B,*:kRIT3=\e[1;9C,*:kLFT3=\e[1;9D"
+
+# ============================================================================
+# WINDOWS & PANE CREATION
+# ============================================================================
+
+# New window retains current path
+# Values: true, false (default)
+tmux_conf_new_window_retain_current_path=false
+
+# New pane retains current path
+# Values: true (default), false
+tmux_conf_new_pane_retain_current_path=true
+
+# New pane tries to reconnect ssh sessions (experimental)
+# Values: true, false (default)
+tmux_conf_new_pane_reconnect_ssh=false
+
+# Prompt for session name when creating a new session
+# Values: true, false (default)
+tmux_conf_new_session_prompt=false
+
+# ============================================================================
+# DISPLAY - GENERAL
+# ============================================================================
+
+# RGB 24-bit colour support (tmux >= 2.2)
+# Values: true, false (default)
+tmux_conf_theme_24b_colour=false
+
+# Window style
+tmux_conf_theme_window_fg='default'
+tmux_conf_theme_window_bg='default'
+
+# Highlight focused pane (tmux >= 2.1)
+# Values: true, false (default)
+tmux_conf_theme_highlight_focused_pane=false
+
+# Focused pane colours
+tmux_conf_theme_focused_pane_fg='default'
+tmux_conf_theme_focused_pane_bg='#0087d7'               # light blue
+
+# ============================================================================
+# DISPLAY - PANE BORDERS
+# ============================================================================
+
+# Pane border style
+# Values: thin (default), fat
+tmux_conf_theme_pane_border_style=thin
+
+# Pane borders colours
+tmux_conf_theme_pane_border='#444444'                   # gray
+tmux_conf_theme_pane_active_border='#00afff'            # light blue
+
+# Pane indicator colours
+tmux_conf_theme_pane_indicator='#00afff'                # light blue
+tmux_conf_theme_pane_active_indicator='#00afff'         # light blue
+
+# ============================================================================
+# DISPLAY - MESSAGES
+# ============================================================================
+
+# Status line message style
+tmux_conf_theme_message_fg='#000000'                    # black
+tmux_conf_theme_message_bg='#ffff00'                    # yellow
+tmux_conf_theme_message_attr='bold'
+
+# Status line command style (<prefix> : Escape)
+tmux_conf_theme_message_command_fg='#ffff00'            # yellow
+tmux_conf_theme_message_command_bg='#000000'            # black
+tmux_conf_theme_message_command_attr='bold'
+
+# Window modes style
+tmux_conf_theme_mode_fg='#000000'                       # black
+tmux_conf_theme_mode_bg='#ffff00'                       # yellow
+tmux_conf_theme_mode_attr='bold'
+
+# ============================================================================
+# DISPLAY - STATUS LINE
+# ============================================================================
+
+# Status line style
+tmux_conf_theme_status_fg='#8a8a8a'                     # light gray
+tmux_conf_theme_status_bg='#080808'                     # dark gray
+tmux_conf_theme_status_attr='none'
+
+# Terminal title
+# Built-in variables: #{circled_window_index}, #{circled_session_name},
+#   #{hostname}, #{hostname_ssh}, #{username}, #{username_ssh}
+tmux_conf_theme_terminal_title='#h ❐ #S ● #I #W'
+
+# ============================================================================
+# DISPLAY - WINDOW STATUS
+# ============================================================================
+
+# Window status style
+# Built-in variables: #{circled_window_index}, #{circled_session_name},
+#   #{hostname}, #{hostname_ssh}, #{username}, #{username_ssh}
+tmux_conf_theme_window_status_fg='#8a8a8a'              # light gray
+tmux_conf_theme_window_status_bg='#080808'              # dark gray
+tmux_conf_theme_window_status_attr='none'
+tmux_conf_theme_window_status_format='#I #W'
+
+# Window current status style
+tmux_conf_theme_window_status_current_fg='#000000'      # black
+tmux_conf_theme_window_status_current_bg='#00afff'      # light blue
+tmux_conf_theme_window_status_current_attr='bold'
+tmux_conf_theme_window_status_current_format='#I #W'
+
+# Window activity status style
+tmux_conf_theme_window_status_activity_fg='default'
+tmux_conf_theme_window_status_activity_bg='default'
+tmux_conf_theme_window_status_activity_attr='underscore'
+
+# Window bell status style
+tmux_conf_theme_window_status_bell_fg='#ffff00'         # yellow
+tmux_conf_theme_window_status_bell_bg='default'
+tmux_conf_theme_window_status_bell_attr='blink,bold'
+
+# Window last status style
+tmux_conf_theme_window_status_last_fg='#00afff'         # light blue
+tmux_conf_theme_window_status_last_bg='default'
+tmux_conf_theme_window_status_last_attr='none'
+
+# ============================================================================
+# DISPLAY - SEPARATORS
+# ============================================================================
+
+# Status left/right sections separators
+tmux_conf_theme_left_separator_main=''
+tmux_conf_theme_left_separator_sub='|'
+tmux_conf_theme_right_separator_main=''
+tmux_conf_theme_right_separator_sub='|'
+
+# Powerline separators (requires patched fonts)
+#tmux_conf_theme_left_separator_main='\uE0B0'
+#tmux_conf_theme_left_separator_sub='\uE0B1'
+#tmux_conf_theme_right_separator_main='\uE0B2'
+#tmux_conf_theme_right_separator_sub='\uE0B3'
+
+# ============================================================================
+# DISPLAY - STATUS CONTENT
+# ============================================================================
+# NOTE: Separate main sections with '|', subsections with ','
+# Built-in variables:
+#   #{battery_bar}, #{battery_hbar}, #{battery_percentage},
+#   #{battery_status}, #{battery_vbar}, #{circled_session_name},
+#   #{hostname_ssh}, #{hostname}, #{loadavg}, #{pairing}, #{prefix},
+#   #{root}, #{synchronized}, #{uptime_y}, #{uptime_d}, #{uptime_h},
+#   #{uptime_m}, #{uptime_s}, #{username}, #{username_ssh}
+
+tmux_conf_theme_status_left=' ❐ #S | ↑#{?uptime_y, #{uptime_y}y,}#{?uptime_d, #{uptime_d}d,}#{?uptime_h, #{uptime_h}h,}#{?uptime_m, #{uptime_m}m,} '
+tmux_conf_theme_status_right='#{prefix}#{pairing}#{synchronized} #{?battery_status, #{battery_status},}#{?battery_bar, #{battery_bar},}#{?battery_percentage, #{battery_percentage},} , %R , %d %b | #{username}#{root} | #{hostname} '
+
+# Status left style (fg, bg, attr for each section)
+tmux_conf_theme_status_left_fg='#000000,#e4e4e4,#e4e4e4'  # black, white, white
+tmux_conf_theme_status_left_bg='#ffff00,#ff00af,#00afff'  # yellow, pink, blue
+tmux_conf_theme_status_left_attr='bold,none,none'
+
+# Status right style (fg, bg, attr for each section)
+tmux_conf_theme_status_right_fg='#8a8a8a,#e4e4e4,#000000' # light gray, white, black
+tmux_conf_theme_status_right_bg='#080808,#d70000,#e4e4e4' # dark gray, red, white
+tmux_conf_theme_status_right_attr='none,none,bold'
+
+# ============================================================================
+# DISPLAY - INDICATORS
+# ============================================================================
+
+# Pairing indicator
+tmux_conf_theme_pairing='👓 '                           # U+1F453
+tmux_conf_theme_pairing_fg='none'
+tmux_conf_theme_pairing_bg='none'
+tmux_conf_theme_pairing_attr='none'
+
+# Prefix indicator
+tmux_conf_theme_prefix='⌨ '                             # U+2328
+tmux_conf_theme_prefix_fg='none'
+tmux_conf_theme_prefix_bg='none'
+tmux_conf_theme_prefix_attr='none'
+
+# Root indicator
+tmux_conf_theme_root='!'
+tmux_conf_theme_root_fg='none'
+tmux_conf_theme_root_bg='none'
+tmux_conf_theme_root_attr='bold,blink'
+
+# Synchronized indicator
+tmux_conf_theme_synchronized='🔒'                       # U+1F512
+tmux_conf_theme_synchronized_fg='none'
+tmux_conf_theme_synchronized_bg='none'
+tmux_conf_theme_synchronized_attr='none'
+
+# ============================================================================
+# DISPLAY - BATTERY
+# ============================================================================
+
+# Battery bar symbols
+tmux_conf_battery_bar_symbol_full='◼'
+tmux_conf_battery_bar_symbol_empty='◻'
+#tmux_conf_battery_bar_symbol_full='♥'
+#tmux_conf_battery_bar_symbol_empty='·'
+
+# Battery bar length
+# Values: auto, or a number (e.g., 5)
+tmux_conf_battery_bar_length='auto'
+
+# Battery bar palette
+# Values: gradient (default), heat, 'colour_full_fg,colour_empty_fg,colour_bg'
+tmux_conf_battery_bar_palette='gradient'
+
+# Battery hbar palette
+# Values: gradient (default), heat, 'colour_low,colour_half,colour_full'
+tmux_conf_battery_hbar_palette='gradient'
+
+# Battery vbar palette
+# Values: gradient (default), heat, 'colour_low,colour_half,colour_full'
+tmux_conf_battery_vbar_palette='gradient'
+
+# Battery status symbols
+tmux_conf_battery_status_charging='↑'                   # U+2191
+tmux_conf_battery_status_discharging='↓'                # U+2193
+#tmux_conf_battery_status_charging='⚡ '                 # U+26A1
+#tmux_conf_battery_status_discharging='🔋 '             # U+1F50B
+
+# ============================================================================
+# DISPLAY - CLOCK
+# ============================================================================
+
+# Clock style (when you hit <prefix> + t)
+# NOTE: Use %I:%M %p for 12-hour format
+tmux_conf_theme_clock_colour='#00afff'                  # light blue
+tmux_conf_theme_clock_style='24'
+
+# ============================================================================
+# CLIPBOARD
+# ============================================================================
+# NOTE: In copy mode, copying selection also copies to OS clipboard
+# Requires: reattach-to-user-namespace on macOS, xsel or xclip on Linux
+
+tmux_conf_copy_to_os_clipboard=false
+
+# ============================================================================
+# USER CUSTOMIZATIONS
+# ============================================================================
+# NOTE: Override or undo settings here
+
+# --------------------------
+# Mouse
+# --------------------------
+set -g mouse on
+
+# --------------------------
+# Vi Mode
+# --------------------------
+# Force Vi mode (or export VISUAL/EDITOR in your shell)
+#set -g status-keys vi
+#set -g mode-keys vi
+
+# --------------------------
+# Prefix Key
+# --------------------------
+# Replace C-b by C-a (uncomment to enable)
+#set -gu prefix2
+#unbind C-a
+#unbind C-b
+#set -g prefix C-a
+#bind C-a send-prefix
+
+# --------------------------
+# Status Position
+# --------------------------
+# Move status line to top
+#set -g status-position top
+
+# ============================================================================
+# TPM (Tmux Plugin Manager)
+# ============================================================================
+# NOTE: Install plugins with <prefix> + I, update with <prefix> + U
+
+# --------------------------
+# Plugin List
+# --------------------------
+set -g @tpm_plugins '           \
+  tmux-plugins/tpm              \
+  tmux-plugins/tmux-sensible    \
+  tmux-plugins/tmux-continuum   \
+  tmux-plugins/tmux-resurrect   \
+  samoshkin/tmux-plugin-sysstat \
+  tmux-plugins/tmux-yank        \
+  tmux-plugins/tmux-open        \
+'
+
+# --------------------------
+# Resurrect Settings
+# --------------------------
+# Save/restore vim sessions
+set -g @resurrect-strategy-vim 'session'
+set -g @resurrect-strategy-nvim 'session'
+set -g @resurrect-capture-pane-contents 'on'
+
+# --------------------------
+# Continuum Settings
+# --------------------------
+# Auto-restore session on tmux start
+set -g @continuum-restore 'on'
+
+# ============================================================================
+# PERFORMANCE SETTINGS
+# ============================================================================
+
+# Address vim mode switching delay
+set -s escape-time 0
+
+# Increase scrollback buffer size
+set -g history-limit 50000
+
+# Tmux messages display time
+set -g display-time 4000
+
+# Refresh status line more often
+set -g status-interval 5
+
+# ============================================================================
+# TERMINAL SETTINGS
+# ============================================================================
+
+# Upgrade $TERM for 256 colors
+set -g default-terminal "screen-256color"
+
+# Emacs key bindings in tmux command prompt
+set -g status-keys emacs
+
+# Focus events enabled for terminals that support them
+set -g focus-events on
+
+# Useful for grouped sessions and multi-monitor setup
+set -g aggressive-resize on
+
+# ============================================================================
+# KEY BINDINGS - COPY MODE
+# ============================================================================
+# NOTE: Scroll bindings for copy-mode-vi
+
+bind -T copy-mode-vi M-Up              send-keys -X scroll-up
+bind -T copy-mode-vi M-Down            send-keys -X scroll-down
+bind -T copy-mode-vi M-PageUp          send-keys -X halfpage-up
+bind -T copy-mode-vi M-PageDown        send-keys -X halfpage-down
+bind -T copy-mode-vi PageDown          send-keys -X page-down
+bind -T copy-mode-vi PageUp            send-keys -X page-up
+
+# ============================================================================
+# TPM INITIALIZATION
+# ============================================================================
+# NOTE: Keep this line at the very bottom of tmux.conf
+
+run -b '~/.tmux/plugins/tpm/tpm'
+
+# ============================================================================
+# END OF CONFIGURATION
+# ============================================================================

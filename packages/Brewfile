@@ -1,0 +1,84 @@
+# ============================================================================
+#                         HOMEBREW BUNDLE (macOS)
+#                    github.com/wit543/dotfiles
+# ============================================================================
+# Install: brew bundle --file=Brewfile
+# Update:  brew bundle --file=Brewfile && brew upgrade
+# ============================================================================
+
+# ============================================================================
+# TAPS (Third-party Repositories)
+# ============================================================================
+
+tap "homebrew/bundle"                 # Bundle support
+tap "homebrew/cask-fonts"             # Nerd fonts
+
+# ============================================================================
+# CORE CLI TOOLS
+# ============================================================================
+# NOTE: Essential command-line utilities
+
+brew "git"                            # Version control
+brew "zsh"                            # Default shell
+brew "wget"                           # File downloader
+brew "curl"                           # URL transfers
+brew "neovim"                         # Modern vim
+brew "tmux"                           # Terminal multiplexer
+brew "expect"                         # Interactive automation
+
+# ============================================================================
+# SEARCH & NAVIGATION
+# ============================================================================
+# NOTE: Fast file/content searching
+
+brew "fzf"                            # Fuzzy finder (Ctrl+R, Ctrl+T)
+brew "ripgrep"                        # Fast grep (rg)
+brew "fd"                             # Fast find
+brew "tree"                           # Directory tree view
+
+# ============================================================================
+# MODERN CLI REPLACEMENTS
+# ============================================================================
+# NOTE: Better alternatives to standard tools
+
+brew "bat"                            # cat with syntax highlighting
+brew "eza"                            # ls replacement (colors, git)
+brew "jq"                             # JSON processor
+brew "htop"                           # Interactive process viewer
+
+# ============================================================================
+# DEVELOPMENT
+# ============================================================================
+# NOTE: Programming languages and tools
+
+brew "node"                           # Node.js runtime
+brew "python@3"                       # Python 3
+brew "go"                             # Go language
+
+# ============================================================================
+# CLOUD & INFRASTRUCTURE
+# ============================================================================
+# NOTE: Google Cloud SDK for gcloud, gsutil, bq commands
+
+cask "google-cloud-sdk"
+
+# ============================================================================
+# FONTS
+# ============================================================================
+# NOTE: Required for Powerlevel10k prompt icons
+
+cask "font-meslo-lg-nerd-font"        # Powerline + Nerd Font icons
+
+# ============================================================================
+# APPLICATIONS (Casks)
+# ============================================================================
+# NOTE: GUI applications installed via Homebrew
+
+cask "iterm2"                         # Terminal emulator
+cask "visual-studio-code"             # Code editor
+cask "docker"                         # Container platform
+cask "google-chrome"                  # Web browser
+
+# ============================================================================
+# END OF BREWFILE
+# ============================================================================
