@@ -3,11 +3,15 @@
   "mcpServers": {
     "context7": {
       "command": "npx",
-      "args": ["-y", "@upstash/context7-mcp@latest"]
+      "args": ["-y", "@upstash/context7-mcp@latest"],
+      "env": {
+        "CONTEXT7_API_KEY": "${CONTEXT7_API_KEY:-}"
+      }
     }
   },
   "permissions": {
     "allow": [
+      "mcp__context7",
       "Bash(git add:*)",
       "Bash(git status:*)",
       "Bash(git diff:*)",

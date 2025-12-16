@@ -430,8 +430,16 @@ eval "$(starship init zsh)"
 # NOTE: Put machine-specific config in ~/.zshrc.local (not tracked by git)
 # Examples:
 #   - Work-specific aliases
-#   - API keys and secrets
+#   - API keys and secrets (CONTEXT7_API_KEY, OPENAI_API_KEY, etc.)
 #   - Machine-specific PATH additions
+#
+# Template for ~/.zshrc.local:
+#   # MCP Server API Keys (optional - for higher rate limits)
+#   export CONTEXT7_API_KEY="your-api-key-here"
+#
+#   # Other secrets
+#   export OPENAI_API_KEY="sk-..."
+#   export ANTHROPIC_API_KEY="sk-ant-..."
 
 [[ -f ~/.zshrc.local ]] && source ~/.zshrc.local
 
