@@ -9,9 +9,8 @@
 # ============================================================================
 # TAPS (Third-party Repositories)
 # ============================================================================
-
-tap "homebrew/bundle"                 # Bundle support
-tap "homebrew/cask-fonts"             # Nerd fonts
+# NOTE: homebrew/bundle and homebrew/cask-fonts are now deprecated
+#       Fonts are available directly via "brew install --cask font-*"
 
 # ============================================================================
 # CORE CLI TOOLS
