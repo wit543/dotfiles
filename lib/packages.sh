@@ -141,6 +141,14 @@ install_from_brewfile() {
         return 0
     fi
 
+    # Docker Desktop requires /usr/local/cli-plugins for docker-compose
+    # Create it before installing casks to avoid sudo prompt during brew bundle
+    if [[ ! -d /usr/local/cli-plugins ]]; then
+        log_info "Creating /usr/local/cli-plugins for Docker..."
+        sudo mkdir -p /usr/local/cli-plugins
+        sudo chown -R "$(whoami)" /usr/local/cli-plugins
+    fi
+
     log_info "Installing from Brewfile..."
     brew bundle --file="$brewfile"
 }
