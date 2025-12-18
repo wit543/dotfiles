@@ -7,7 +7,8 @@
 # Usage: ./verify.sh
 # ============================================================================
 
-set -euo pipefail
+set -uo pipefail
+# Note: -e removed because ((VAR++)) returns 1 when VAR=0, causing early exit
 
 # Colors
 RED='\033[0;31m'
