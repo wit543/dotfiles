@@ -71,7 +71,8 @@ assert_json_valid() {
     ((TESTS_RUN++))
 
     if command -v jq &>/dev/null; then
-        if jq empty "$file" 2>/dev/null; then
+        # Strip comments (// and /* */) for JSONC support, then validate
+        if sed 's|//.*||g; s|/\*.*\*/||g' "$file" | jq empty 2>/dev/null; then
             echo -e "  ${GREEN}✓${NC} $message"
             ((TESTS_PASSED++))
             return 0
