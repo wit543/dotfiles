@@ -71,9 +71,14 @@ assert_json_valid() {
     ((TESTS_RUN++))
 
     if command -v jq &>/dev/null; then
-        # Strip comments (// and /* */) for JSONC support, then validate
-        if sed 's|//.*||g; s|/\*.*\*/||g' "$file" | jq empty 2>/dev/null; then
+        # Try direct JSON first, then JSONC with comment stripping
+        # Note: Comment stripping is basic - only handles // at line start (after whitespace)
+        if jq empty "$file" 2>/dev/null; then
             echo -e "  ${GREEN}✓${NC} $message"
+            ((TESTS_PASSED++))
+            return 0
+        elif sed 's|^[[:space:]]*//.*||g' "$file" | jq empty 2>/dev/null; then
+            echo -e "  ${GREEN}✓${NC} $message (JSONC)"
             ((TESTS_PASSED++))
             return 0
         else
