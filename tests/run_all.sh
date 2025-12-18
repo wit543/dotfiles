@@ -76,9 +76,10 @@ run_suite "test_configs.sh" "Configuration Files" || true
 
 if [[ "$QUICK_MODE" == "false" ]]; then
     run_suite "test_integration.sh" "Integration Tests" || true
+    run_suite "test_functional.sh" "Functional Tests" || true
 else
     echo ""
-    echo -e "${YELLOW}⊘${NC} Skipping integration tests (quick mode)"
+    echo -e "${YELLOW}⊘${NC} Skipping integration & functional tests (quick mode)"
 fi
 
 # ============================================================================
