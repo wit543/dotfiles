@@ -1,14 +1,96 @@
 # Windows Dotfiles Setup Script
 # Run as Administrator: powershell -ExecutionPolicy Bypass -File setup.ps1
 #
-# This script provides feature parity with macOS/Linux dotfiles:
-# - System tweaks (debloat, telemetry off, hibernate off)
-# - CLI tools (git, fzf, ripgrep, bat, eza, delta, starship, etc.)
-# - Development tools (Node, Python, Go, Docker)
-# - Applications (Chrome, VSCode, Windows Terminal)
-# - Config deployment (Git, Starship, VSCode, etc.)
+# Usage:
+#   .\setup.ps1                      # Full install (all components)
+#   .\setup.ps1 -Profile minimal     # Minimal setup (servers)
+#   .\setup.ps1 -Profile deploy      # Deploy machine (+ docker)
+#   .\setup.ps1 -Profile development # Dev environment (+ editors)
+#   .\setup.ps1 -Profile full        # Everything (+ AI tools)
+#   .\setup.ps1 -ListProfiles        # Show available profiles
+#
+# Profiles:
+#   minimal     - System tweaks, Git, basic CLI tools
+#   deploy      - minimal + Docker, container tools
+#   development - deploy + full CLI/TUI tools, VSCode, dev languages
+#   full        - development + Claude AI, all extensions
+
+param(
+    [ValidateSet("minimal", "deploy", "development", "full")]
+    [string]$Profile = "full",
+
+    [switch]$ListProfiles,
+    [switch]$Help
+)
 
 $ErrorActionPreference = "Continue"
+
+# ============================================================================
+# PROFILE DEFINITIONS
+# ============================================================================
+
+$Profiles = @{
+    minimal = @{
+        Description = "Basic setup for servers (system tweaks, git, basic tools)"
+        Components = @("system", "bloatware", "telemetry", "git", "cli-basic")
+    }
+    deploy = @{
+        Description = "Deployment machine (minimal + docker, container tools)"
+        Components = @("system", "bloatware", "telemetry", "git", "cli-basic", "docker")
+    }
+    development = @{
+        Description = "Development environment (editors, full CLI, languages)"
+        Components = @("system", "bloatware", "telemetry", "git", "cli-basic", "cli-full", "tui", "docker", "devtools", "vscode", "apps", "font", "profile")
+    }
+    full = @{
+        Description = "Complete setup (everything + AI assistant)"
+        Components = @("system", "bloatware", "telemetry", "git", "cli-basic", "cli-full", "tui", "docker", "devtools", "vscode", "apps", "font", "claude", "profile")
+    }
+}
+
+# Show help
+if ($Help) {
+    Write-Host @"
+Windows Dotfiles Setup Script
+
+Usage:
+  .\setup.ps1                      # Full install (all components)
+  .\setup.ps1 -Profile minimal     # Minimal setup (servers)
+  .\setup.ps1 -Profile deploy      # Deploy machine (+ docker)
+  .\setup.ps1 -Profile development # Dev environment (+ editors)
+  .\setup.ps1 -Profile full        # Everything (+ AI tools)
+  .\setup.ps1 -ListProfiles        # Show available profiles
+
+Profiles:
+  minimal     - System tweaks, Git, basic CLI tools
+  deploy      - minimal + Docker, container tools
+  development - deploy + full CLI/TUI tools, VSCode, dev languages
+  full        - development + Claude AI, all extensions
+"@
+    exit 0
+}
+
+# List profiles
+if ($ListProfiles) {
+    Write-Host "`nAvailable Profiles:" -ForegroundColor Cyan
+    Write-Host "===================" -ForegroundColor Cyan
+    foreach ($name in @("minimal", "deploy", "development", "full")) {
+        $p = $Profiles[$name]
+        Write-Host "`n  $name" -ForegroundColor Yellow
+        Write-Host "    $($p.Description)" -ForegroundColor Gray
+        Write-Host "    Components: $($p.Components -join ', ')" -ForegroundColor DarkGray
+    }
+    Write-Host ""
+    exit 0
+}
+
+# Get selected profile components
+$SelectedComponents = $Profiles[$Profile].Components
+
+function Should-Install {
+    param([string]$Component)
+    return $SelectedComponents -contains $Component
+}
 
 Write-Host @"
 
@@ -30,6 +112,8 @@ if (-not (Test-Path "$dotfilesDir\config")) {
     $dotfilesDir = "$env:USERPROFILE\dotfiles"
 }
 Write-Host "Dotfiles directory: $dotfilesDir" -ForegroundColor Gray
+Write-Host "Profile: $Profile" -ForegroundColor Yellow
+Write-Host "Components: $($SelectedComponents -join ', ')" -ForegroundColor Gray
 
 # Check admin status
 $isAdmin = ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
@@ -37,10 +121,16 @@ if (-not $isAdmin) {
     Write-Host "WARNING: Not running as Administrator. Some features will be skipped." -ForegroundColor Yellow
 }
 
+# Calculate total steps based on profile
+$totalSteps = $SelectedComponents.Count
+$currentStep = 0
+
 # ============================================================================
-# [1/12] REMOVE BLOATWARE
+# REMOVE BLOATWARE
 # ============================================================================
-Write-Host "`n[1/12] Removing bloatware..." -ForegroundColor Yellow
+if (Should-Install "bloatware") {
+$currentStep++
+Write-Host "`n[$currentStep/$totalSteps] Removing bloatware..." -ForegroundColor Yellow
 
 $bloatwareApps = @(
     # Microsoft bloatware
@@ -110,11 +200,14 @@ foreach ($app in $bloatwareApps) {
         }
 }
 Write-Host "  Removed $removed bloatware apps" -ForegroundColor Green
+}
 
 # ============================================================================
-# [2/12] DISABLE TELEMETRY & ADS
+# DISABLE TELEMETRY & ADS
 # ============================================================================
-Write-Host "`n[2/12] Disabling telemetry and ads..." -ForegroundColor Yellow
+if (Should-Install "telemetry") {
+$currentStep++
+Write-Host "`n[$currentStep/$totalSteps] Disabling telemetry and ads..." -ForegroundColor Yellow
 
 # Disable telemetry
 if ($isAdmin) {
@@ -147,11 +240,14 @@ New-Item -Path "HKCU:\SOFTWARE\Policies\Microsoft\Windows\Explorer" -Force -Erro
 Set-ItemProperty -Path "HKCU:\SOFTWARE\Policies\Microsoft\Windows\Explorer" -Name "DisableSearchBoxSuggestions" -Value 1 -Type DWord -Force
 
 Write-Host "  Telemetry, ads, and Copilot disabled" -ForegroundColor Green
+}
 
 # ============================================================================
-# [3/12] SYSTEM SETTINGS
+# SYSTEM SETTINGS
 # ============================================================================
-Write-Host "`n[3/12] Configuring system settings..." -ForegroundColor Yellow
+if (Should-Install "system") {
+$currentStep++
+Write-Host "`n[$currentStep/$totalSteps] Configuring system settings..." -ForegroundColor Yellow
 
 # Disable hibernate
 if ($isAdmin) {
@@ -205,11 +301,40 @@ public class CursorChanger {
 [CursorChanger]::SystemParametersInfo(0x0057, 0, [IntPtr]::Zero, 0x03) | Out-Null
 
 Write-Host "  Cursor set to black, 150% size" -ForegroundColor Green
+}
 
 # ============================================================================
-# [4/12] INSTALL CORE CLI TOOLS
+# INSTALL CORE CLI TOOLS (Basic - for all profiles)
 # ============================================================================
-Write-Host "`n[4/12] Installing core CLI tools..." -ForegroundColor Yellow
+if (Should-Install "cli-basic") {
+$currentStep++
+Write-Host "`n[$currentStep/$totalSteps] Installing basic CLI tools..." -ForegroundColor Yellow
+
+# Basic tools for minimal profile
+$basicTools = @(
+    @{ id = "Git.Git"; name = "Git" }
+    @{ id = "junegunn.fzf"; name = "fzf" }
+    @{ id = "BurntSushi.ripgrep.MSVC"; name = "ripgrep" }
+)
+
+foreach ($tool in $basicTools) {
+    $installed = winget list --id $tool.id 2>&1 | Select-String $tool.id
+    if (-not $installed) {
+        Write-Host "  Installing $($tool.name)..." -NoNewline
+        winget install $tool.id --accept-package-agreements --accept-source-agreements --silent 2>&1 | Out-Null
+        Write-Host " OK" -ForegroundColor Green
+    } else {
+        Write-Host "  $($tool.name) already installed" -ForegroundColor Gray
+    }
+}
+}
+
+# ============================================================================
+# INSTALL FULL CLI TOOLS (for development/full profiles)
+# ============================================================================
+if (Should-Install "cli-full") {
+$currentStep++
+Write-Host "`n[$currentStep/$totalSteps] Installing full CLI tools..." -ForegroundColor Yellow
 
 # Core tools (equivalent to Brewfile)
 $coreTools = @(
@@ -239,11 +364,14 @@ foreach ($tool in $coreTools) {
         Write-Host "  $($tool.name) already installed" -ForegroundColor Gray
     }
 }
+}
 
 # ============================================================================
-# [5/12] INSTALL TUI PRODUCTIVITY TOOLS
+# INSTALL TUI PRODUCTIVITY TOOLS
 # ============================================================================
-Write-Host "`n[5/12] Installing TUI productivity tools..." -ForegroundColor Yellow
+if (Should-Install "tui") {
+$currentStep++
+Write-Host "`n[$currentStep/$totalSteps] Installing TUI productivity tools..." -ForegroundColor Yellow
 
 $tuiTools = @(
     @{ id = "JesseDuffield.lazygit"; name = "lazygit" }
@@ -261,11 +389,14 @@ foreach ($tool in $tuiTools) {
         Write-Host "  $($tool.name) already installed" -ForegroundColor Gray
     }
 }
+}
 
 # ============================================================================
-# [6/12] INSTALL DEVELOPMENT TOOLS
+# INSTALL DEVELOPMENT TOOLS
 # ============================================================================
-Write-Host "`n[6/12] Installing development tools..." -ForegroundColor Yellow
+if (Should-Install "devtools") {
+$currentStep++
+Write-Host "`n[$currentStep/$totalSteps] Installing development tools..." -ForegroundColor Yellow
 
 $devTools = @(
     @{ id = "OpenJS.NodeJS.LTS"; name = "Node.js" }
@@ -284,11 +415,14 @@ foreach ($tool in $devTools) {
         Write-Host "  $($tool.name) already installed" -ForegroundColor Gray
     }
 }
+}
 
 # ============================================================================
-# [7/12] INSTALL APPLICATIONS
+# INSTALL APPLICATIONS
 # ============================================================================
-Write-Host "`n[7/12] Installing applications..." -ForegroundColor Yellow
+if (Should-Install "apps") {
+$currentStep++
+Write-Host "`n[$currentStep/$totalSteps] Installing applications..." -ForegroundColor Yellow
 
 $apps = @(
     @{ id = "Google.Chrome"; name = "Chrome" }
@@ -316,11 +450,14 @@ $chromeProgId = 'ChromeHTML'
     }
 }
 Write-Host "  Chrome set as default browser" -ForegroundColor Green
+}
 
 # ============================================================================
-# [8/12] INSTALL NERD FONT
+# INSTALL NERD FONT
 # ============================================================================
-Write-Host "`n[8/12] Installing Nerd Font..." -ForegroundColor Yellow
+if (Should-Install "font") {
+$currentStep++
+Write-Host "`n[$currentStep/$totalSteps] Installing Nerd Font..." -ForegroundColor Yellow
 
 # Download and install MesloLGS NF (for Starship icons)
 $fontUrl = "https://github.com/ryanoasis/nerd-fonts/releases/download/v3.1.1/Meslo.zip"
@@ -356,11 +493,14 @@ if (-not (Test-Path "$fontsFolder\MesloLGSNerdFont-Regular.ttf")) {
 } else {
     Write-Host "  MesloLGS Nerd Font already installed" -ForegroundColor Gray
 }
+}
 
 # ============================================================================
-# [9/12] DEPLOY GIT CONFIG
+# DEPLOY GIT CONFIG
 # ============================================================================
-Write-Host "`n[9/12] Deploying Git configuration..." -ForegroundColor Yellow
+if (Should-Install "git") {
+$currentStep++
+Write-Host "`n[$currentStep/$totalSteps] Deploying Git configuration..." -ForegroundColor Yellow
 
 $gitConfigSrc = "$dotfilesDir\config\git\.gitconfig"
 $gitIgnoreSrc = "$dotfilesDir\config\git\.gitignore_global"
@@ -378,11 +518,13 @@ if (Test-Path $gitIgnoreSrc) {
     Copy-Item -Path $gitIgnoreSrc -Destination $gitIgnoreDest -Force
     Write-Host "  .gitignore_global deployed" -ForegroundColor Green
 }
+}
 
 # ============================================================================
-# [10/12] DEPLOY STARSHIP CONFIG
+# DEPLOY STARSHIP CONFIG (part of cli-full)
 # ============================================================================
-Write-Host "`n[10/12] Deploying Starship configuration..." -ForegroundColor Yellow
+if (Should-Install "cli-full") {
+Write-Host "`nDeploying Starship configuration..." -ForegroundColor Yellow
 
 $starshipSrc = "$dotfilesDir\config\zsh\starship.toml"
 $starshipDest = "$env:USERPROFILE\.config\starship.toml"
@@ -398,11 +540,14 @@ if (Test-Path $starshipSrc) {
 } else {
     Write-Host "  starship.toml not found in dotfiles" -ForegroundColor Yellow
 }
+}
 
 # ============================================================================
-# [11/12] DEPLOY VSCODE CONFIG & EXTENSIONS
+# DEPLOY VSCODE CONFIG & EXTENSIONS
 # ============================================================================
-Write-Host "`n[11/12] Deploying VSCode configuration..." -ForegroundColor Yellow
+if (Should-Install "vscode") {
+$currentStep++
+Write-Host "`n[$currentStep/$totalSteps] Deploying VSCode configuration..." -ForegroundColor Yellow
 
 # Refresh PATH
 $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
@@ -462,11 +607,14 @@ if (Test-Path $extensionsSrc) {
         }
     }
 }
+}
 
 # ============================================================================
-# [12/14] DEPLOY CLAUDE CODE CONFIG
+# DEPLOY CLAUDE CODE CONFIG
 # ============================================================================
-Write-Host "`n[12/14] Deploying Claude Code configuration..." -ForegroundColor Yellow
+if (Should-Install "claude") {
+$currentStep++
+Write-Host "`n[$currentStep/$totalSteps] Deploying Claude Code configuration..." -ForegroundColor Yellow
 
 $claudeSettingsSrc = "$dotfilesDir\config\claude\settings.json"
 $claudeMdSrc = "$dotfilesDir\config\claude\CLAUDE.md"
@@ -503,10 +651,8 @@ if (Test-Path $claudeMdSrc) {
 
 Write-Host "  Claude Code configured with WebSearch, WebFetch, and MCP permissions" -ForegroundColor Green
 
-# ============================================================================
-# [13/14] INSTALL CLAUDE CODE CLI
-# ============================================================================
-Write-Host "`n[13/14] Installing Claude Code CLI..." -ForegroundColor Yellow
+# Install Claude Code CLI
+Write-Host "  Installing Claude Code CLI..." -ForegroundColor Yellow
 
 # Check if npm is available (installed with Node.js)
 $npmPath = Get-Command npm -ErrorAction SilentlyContinue
@@ -527,11 +673,14 @@ if ($npmPath) {
     Write-Host "  npm not found, skipping Claude Code CLI installation" -ForegroundColor Yellow
     Write-Host "  Install manually: npm install -g @anthropic-ai/claude-code" -ForegroundColor Gray
 }
+}
 
 # ============================================================================
-# [14/14] CONFIGURE POWERSHELL PROFILE
+# CONFIGURE POWERSHELL PROFILE
 # ============================================================================
-Write-Host "`n[14/14] Configuring PowerShell profile..." -ForegroundColor Yellow
+if (Should-Install "profile") {
+$currentStep++
+Write-Host "`n[$currentStep/$totalSteps] Configuring PowerShell profile..." -ForegroundColor Yellow
 
 $profileContent = @'
 # ============================================================================
@@ -629,35 +778,59 @@ if (-not (Test-Path $profileDir)) {
 
 Set-Content -Path $PROFILE -Value $profileContent -Force
 Write-Host "  PowerShell profile configured at $PROFILE" -ForegroundColor Green
+}
 
 # ============================================================================
 # SUMMARY
 # ============================================================================
+
+# Build summary based on installed components
+$installedComponents = @()
+$configuredItems = @()
+
+if (Should-Install "cli-basic") { $installedComponents += "git, fzf, ripgrep" }
+if (Should-Install "cli-full") { $installedComponents += "neovim, fd, bat, eza, delta, zoxide, starship, jq, yq, tldr, dust" }
+if (Should-Install "tui") { $installedComponents += "lazygit, lazydocker, btop" }
+if (Should-Install "devtools") { $installedComponents += "Node.js, Python, Go, Docker Desktop" }
+if (Should-Install "apps") { $installedComponents += "Chrome, VSCode, Windows Terminal" }
+if (Should-Install "font") { $installedComponents += "MesloLGS Nerd Font" }
+if (Should-Install "claude") { $installedComponents += "Claude Code CLI" }
+
+if (Should-Install "bloatware") { $configuredItems += "Bloatware removed" }
+if (Should-Install "telemetry") { $configuredItems += "Telemetry & ads disabled" }
+if (Should-Install "system") { $configuredItems += "System settings (hibernate, cursor)" }
+if (Should-Install "git") { $configuredItems += "Git config deployed" }
+if (Should-Install "cli-full") { $configuredItems += "Starship prompt deployed" }
+if (Should-Install "vscode") { $configuredItems += "VSCode settings & extensions" }
+if (Should-Install "claude") { $configuredItems += "Claude Code configured" }
+if (Should-Install "profile") { $configuredItems += "PowerShell profile with aliases" }
+
 Write-Host @"
 
 === Setup Complete ===
 
-Installed:
-  CLI Tools: git, neovim, fzf, ripgrep, fd, bat, eza, delta, zoxide, starship, jq, yq, tldr, dust
-  TUI Tools: lazygit, lazydocker, btop
-  Dev Tools: Node.js, Python, Go, Docker Desktop, Claude Code CLI
-  Apps: Chrome, VSCode, Windows Terminal
-  Font: MesloLGS Nerd Font
+Profile: $Profile
+Components: $($SelectedComponents -join ', ')
 
-Configured:
-  - Bloatware removed
-  - Telemetry & ads disabled
-  - Hibernate disabled
-  - Cursor: Black, 150%
-  - Git config deployed
-  - Starship prompt deployed
-  - VSCode settings & extensions deployed
-  - Claude Code (CLI + VSCode extension)
-    - WebSearch & WebFetch always allowed
-    - MCP servers configured
-    - CLAUDE.md coding standards
-  - PowerShell profile with aliases
+"@ -ForegroundColor Cyan
 
+if ($installedComponents.Count -gt 0) {
+    Write-Host "Installed:" -ForegroundColor Cyan
+    foreach ($item in $installedComponents) {
+        Write-Host "  - $item" -ForegroundColor Gray
+    }
+    Write-Host ""
+}
+
+if ($configuredItems.Count -gt 0) {
+    Write-Host "Configured:" -ForegroundColor Cyan
+    foreach ($item in $configuredItems) {
+        Write-Host "  - $item" -ForegroundColor Gray
+    }
+    Write-Host ""
+}
+
+Write-Host @"
 Next steps:
   1. Restart terminal (or run: . `$PROFILE)
   2. Set Windows Terminal font to "MesloLGS Nerd Font"

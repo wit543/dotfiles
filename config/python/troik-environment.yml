@@ -1,0 +1,108 @@
+name: troik
+channels:
+  - conda-forge
+  - pytorch
+  - defaults
+dependencies:
+  # Core Python
+  - python=3.12
+  - pip
+  - setuptools
+  - wheel
+
+  # Scientific computing
+  - numpy
+  - pandas
+  - scipy
+  - scikit-learn
+  - matplotlib
+  - plotly
+
+  # PyTorch (conda-forge handles platform-specific builds)
+  - pytorch
+  - torchaudio
+
+  # NLP
+  - transformers
+  - tokenizers
+  - nltk
+
+  # Jupyter
+  - jupyterlab
+  - ipykernel
+
+  # Development
+  - pytest
+  - ruff
+
+  # Utilities
+  - psutil
+  - pyyaml
+  - requests
+  - tqdm
+
+  # Install remaining packages via pip
+  - pip:
+      # AI/ML APIs
+      - anthropic
+      - openai
+      - google-genai
+      - elevenlabs
+
+      # Google Cloud
+      - google-cloud-aiplatform
+      - google-cloud-bigquery
+      - google-cloud-storage
+      - google-cloud-speech
+      - google-cloud-texttospeech
+
+      # Web frameworks
+      - fastapi
+      - uvicorn
+      - flask
+      - gunicorn
+      - gradio
+      - streamlit
+
+      # Database
+      - sqlalchemy
+      - asyncpg
+      - psycopg2-binary
+
+      # Data processing
+      - datasets
+      - huggingface-hub
+      - openpyxl
+      - xlsxwriter
+      - beautifulsoup4
+      - lxml
+
+      # Audio
+      - librosa
+      - soundfile
+      - pydub
+      - noisereduce
+
+      # Thai NLP
+      - pythainlp
+
+      # Utilities
+      - httpx
+      - aiohttp
+      - python-dotenv
+      - loguru
+      - rich
+      - typer
+      - tiktoken
+      - pillow
+      - kaleido
+
+      # Testing
+      - pytest-cov
+      - pytest-timeout
+      - coverage
+
+      # Code quality
+      - bert-score
+      - jiwer
+      - sacrebleu

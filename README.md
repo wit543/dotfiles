@@ -41,6 +41,144 @@ cd ~/dotfiles
 ./install.sh --update  # Update packages and configs
 ```
 
+## Installation Profiles
+
+Choose a profile based on your machine type. Each profile builds on the previous one.
+
+### Profile Overview
+
+| Profile | Use Case | Description |
+|---------|----------|-------------|
+| `minimal` | Servers, VMs | Basic shell + git |
+| `deploy` | CI/CD, containers | + Docker tools |
+| `development` | Workstations | + Editors, full CLI |
+| `full` | Power users | + AI assistant |
+
+### Profile Details
+
+#### `minimal` - Basic Shell Setup
+For servers and minimal environments where you need a consistent shell experience.
+
+**Components:**
+- **zsh** - Shell with Zinit + Starship prompt + zoxide + fzf
+- **git** - Git config with delta diff viewer
+- **editorconfig** - Universal editor formatting
+
+**Installs:**
+| macOS/Linux | Windows |
+|-------------|---------|
+| zsh, starship, zoxide, fzf | git, fzf, ripgrep |
+| git, delta | Starship prompt |
+| zinit plugins | System tweaks (bloatware, telemetry) |
+
+---
+
+#### `deploy` - Deployment Machines
+For CI/CD runners, container hosts, and deployment servers.
+
+**Components:** Everything in `minimal` plus:
+- **docker** - Docker tools (lazydocker)
+
+**Additional Installs:**
+| macOS/Linux | Windows |
+|-------------|---------|
+| lazydocker | Docker Desktop |
+| | lazydocker |
+
+---
+
+#### `development` - Development Environment
+For developer workstations with full editor support.
+
+**Components:** Everything in `deploy` plus:
+- **vim** - Vim/Neovim with vim-plug + 40 plugins
+- **tmux** - Terminal multiplexer with TPM
+- **vscode** - VSCode settings + keybindings + extensions
+
+**Additional Installs:**
+| macOS/Linux | Windows |
+|-------------|---------|
+| neovim, vim-plug | neovim, fd, bat, eza |
+| tmux, TPM plugins | delta, zoxide, jq, yq |
+| VSCode extensions | tldr, dust, lazygit, btop |
+| Python (micromamba) | Node.js, Python, Go |
+| | VSCode + extensions |
+| | Chrome, Windows Terminal |
+| | MesloLGS Nerd Font |
+| | PowerShell profile |
+
+---
+
+#### `full` - Complete Setup
+For power users who want everything including AI tools.
+
+**Components:** Everything in `development` plus:
+- **claude** - Claude Code CLI + settings + CLAUDE.md
+
+**Additional Installs:**
+| macOS/Linux | Windows |
+|-------------|---------|
+| Claude Code CLI | Claude Code CLI |
+| ~/.claude/ config | Claude config |
+| CLAUDE.md standards | CLAUDE.md standards |
+
+### Usage Examples
+
+**macOS / Linux:**
+```bash
+# Server setup
+./install.sh --profile=minimal
+
+# CI/CD machine
+./install.sh --profile=deploy
+
+# Developer workstation
+./install.sh --profile=development
+
+# Full setup with AI
+./install.sh --profile=full
+
+# Interactive selection
+./install.sh --interactive
+
+# Custom component selection
+./install.sh --components=zsh,git,vim
+
+# List available profiles
+./install.sh --list-profiles
+```
+
+**Windows (PowerShell as Admin):**
+```powershell
+# Server setup
+.\setup.ps1 -Profile minimal
+
+# CI/CD machine
+.\setup.ps1 -Profile deploy
+
+# Developer workstation
+.\setup.ps1 -Profile development
+
+# Full setup (default)
+.\setup.ps1 -Profile full
+
+# List available profiles
+.\setup.ps1 -ListProfiles
+```
+
+### Component Reference
+
+| Component | Description | Profiles |
+|-----------|-------------|----------|
+| `zsh` | Shell + Zinit + Starship + zoxide + fzf | all |
+| `git` | Git config + delta + gitignore | all |
+| `editorconfig` | Universal editor formatting | all |
+| `docker` | Docker tools (lazydocker) | deploy+ |
+| `vim` | Vim/Neovim + vim-plug + plugins | development+ |
+| `tmux` | Tmux + TPM + gpakosz config | development+ |
+| `vscode` | VSCode settings + extensions | development+ |
+| `claude` | Claude Code CLI + config | full |
+
 ## What's Included
 
 ### Shell (Zsh)
@@ -207,7 +345,8 @@ dotfiles/
 ├── lib/
 │   ├── utils.sh           # Logging, symlink helpers
 │   ├── os.sh              # OS detection
-│   └── packages.sh        # Package manager abstraction
+│   ├── packages.sh        # Package manager abstraction
+│   └── profiles.sh        # Installation profile definitions
 ├── config/
 │   ├── zsh/               # Zsh configuration
 │   │   ├── .zshrc         # Main config (Zinit + Starship)

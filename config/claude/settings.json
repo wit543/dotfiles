@@ -7,6 +7,10 @@
       "env": {
         "CONTEXT7_API_KEY": "${CONTEXT7_API_KEY:-}"
       }
+    },
+    "chrome-devtools": {
+      "command": "npx",
+      "args": ["-y", "chrome-devtools-mcp@latest"]
     }
   },
   "permissions": {
@@ -14,6 +18,7 @@
       "WebSearch",
       "WebFetch",
       "mcp__context7",
+      "mcp__chrome-devtools",
       "Bash(git add:*)",
       "Bash(git status:*)",
       "Bash(git diff:*)",

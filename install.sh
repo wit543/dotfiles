@@ -6,10 +6,14 @@
 # Main installation script for dotfiles
 #
 # Usage:
-#   ./install.sh              # Full install (packages + configs)
-#   ./install.sh --no-sudo    # Config only (no packages)
-#   ./install.sh --update     # Update packages and configs
-#   ./install.sh --help       # Show help
+#   ./install.sh                      # Interactive profile selection
+#   ./install.sh --profile=minimal    # Minimal setup (servers)
+#   ./install.sh --profile=deploy     # Deploy machine (+ docker)
+#   ./install.sh --profile=development # Dev environment (+ editors)
+#   ./install.sh --profile=full       # Everything (+ AI tools)
+#   ./install.sh --no-sudo            # Config only (no packages)
+#   ./install.sh --update             # Update packages and configs
+#   ./install.sh --list-profiles      # Show available profiles
 #
 # Supports: macOS, Ubuntu, Rocky Linux, Manjaro
 # ============================================================================
@@ -33,6 +37,8 @@ source "$SCRIPT_DIR/lib/utils.sh"
 source "$SCRIPT_DIR/lib/os.sh"
 # shellcheck source=lib/packages.sh
 source "$SCRIPT_DIR/lib/packages.sh"
+# shellcheck source=lib/profiles.sh
+source "$SCRIPT_DIR/lib/profiles.sh"
 
 # ============================================================================
 # ARGUMENT PARSING
@@ -40,6 +46,9 @@ source "$SCRIPT_DIR/lib/packages.sh"
 
 USE_SUDO=true
 UPDATE_MODE=false
+PROFILE=""
+COMPONENTS=""
+INTERACTIVE=false
 
 for arg in "$@"; do
     case "$arg" in
@@ -53,14 +62,42 @@ for arg in "$@"; do
             UPDATE_MODE=true
             USE_SUDO=true
             ;;
+        --profile=*)
+            PROFILE="${arg#*=}"
+            ;;
+        --components=*)
+            COMPONENTS="${arg#*=}"
+            ;;
+        --interactive|-i)
+            INTERACTIVE=true
+            ;;
+        --list-profiles)
+            list_profiles
+            exit 0
+            ;;
         -h|--help)
-            echo "Usage: $0 [--sudo|--no-sudo|--update]"
+            echo "Usage: $0 [OPTIONS]"
             echo ""
             echo "Options:"
-            echo "  --sudo     Install packages + configs (default)"
-            echo "  --no-sudo  Config only, skip package installation"
-            echo "  --update   Update packages and pull latest configs"
-            echo "  -h, --help Show this help message"
+            echo "  --profile=NAME   Use installation profile (minimal|deploy|development|full)"
+            echo "  --components=... Comma-separated list of components to install"
+            echo "  --interactive    Interactive profile/component selection"
+            echo "  --sudo           Install packages + configs (default)"
+            echo "  --no-sudo        Config only, skip package installation"
+            echo "  --update         Update packages and pull latest configs"
+            echo "  --list-profiles  Show available profiles and components"
+            echo "  -h, --help       Show this help message"
+            echo ""
+            echo "Profiles:"
+            echo "  minimal     - Basic shell (zsh, git, editorconfig)"
+            echo "  deploy      - Deployment (minimal + docker)"
+            echo "  development - Dev environment (+ vim, tmux, vscode)"
+            echo "  full        - Everything (+ claude AI)"
+            echo ""
+            echo "Examples:"
+            echo "  $0 --profile=minimal           # Server setup"
+            echo "  $0 --profile=development       # Dev workstation"
+            echo "  $0 --components=zsh,git,vim    # Custom selection"
             exit 0
             ;;
     esac
@@ -563,6 +600,55 @@ upgrade_packages() {
 }
 
 # ============================================================================
+# COMPONENT SELECTION
+# ============================================================================
+
+# Check if a component should be installed
+should_install() {
+    local component="$1"
+    [[ " $SELECTED_COMPONENTS " == *" $component "* ]]
+}
+
+# Resolve components from profile or custom list
+resolve_components() {
+    # If components specified directly, use them
+    if [[ -n "$COMPONENTS" ]]; then
+        SELECTED_COMPONENTS="${COMPONENTS//,/ }"
+        return
+    fi
+
+    # If profile specified, get its components
+    if [[ -n "$PROFILE" ]]; then
+        if validate_profile "$PROFILE"; then
+            SELECTED_COMPONENTS=$(get_profile_components "$PROFILE")
+        else
+            log_error "Invalid profile: $PROFILE"
+            log_info "Use --list-profiles to see available profiles"
+            exit 1
+        fi
+        return
+    fi
+
+    # Interactive mode
+    if $INTERACTIVE || [[ -t 0 ]]; then
+        local selected_profile
+        selected_profile=$(select_profile)
+
+        if [[ "$selected_profile" == "custom" ]]; then
+            SELECTED_COMPONENTS=$(select_components)
+        else
+            SELECTED_COMPONENTS=$(get_profile_components "$selected_profile")
+            PROFILE="$selected_profile"
+        fi
+        return
+    fi
+
+    # Default to full profile
+    PROFILE="full"
+    SELECTED_COMPONENTS=$(get_profile_components "full")
+}
+
+# ============================================================================
 # MAIN FUNCTION
 # ============================================================================
 
@@ -586,6 +672,16 @@ main() {
         log_info "Mode: CONFIG ONLY (no package installation)"
     fi
 
+    # --------------------------
+    # Resolve Profile/Components
+    # --------------------------
+    resolve_components
+
+    if [[ -n "$PROFILE" ]]; then
+        log_info "Profile: $PROFILE"
+    fi
+    log_info "Components: $SELECTED_COMPONENTS"
+
     echo ""
 
     # --------------------------
@@ -598,16 +694,45 @@ main() {
     fi
 
     # --------------------------
-    # Configuration Setup
+    # Configuration Setup (based on selected components)
     # --------------------------
-    setup_zsh
-    setup_vim
-    setup_tmux
-    setup_git
-    setup_editorconfig
-    setup_vscode
-    setup_claude
-    setup_python
+    if should_install "zsh"; then
+        setup_zsh
+    fi
+
+    if should_install "vim"; then
+        setup_vim
+    fi
+
+    if should_install "tmux"; then
+        setup_tmux
+    fi
+
+    if should_install "git"; then
+        setup_git
+    fi
+
+    if should_install "editorconfig"; then
+        setup_editorconfig
+    fi
+
+    if should_install "vscode"; then
+        setup_vscode
+    fi
+
+    if should_install "claude"; then
+        setup_claude
+    fi
+
+    if should_install "docker"; then
+        # Docker-related setup (lazydocker already in setup_zsh for Linux)
+        log_info "Docker tools configured"
+    fi
+
+    # Python setup only for development/full profiles
+    if should_install "vim" || should_install "vscode"; then
+        setup_python
+    fi
 
     # --------------------------
     # OS-Specific Setup
@@ -628,6 +753,9 @@ main() {
     echo "============================================"
     log_success "Dotfiles installation complete!"
     echo "============================================"
+    echo ""
+    log_info "Profile: ${PROFILE:-custom}"
+    log_info "Installed: $SELECTED_COMPONENTS"
     echo ""
     log_info "Please restart your shell or run: exec zsh"
     echo ""

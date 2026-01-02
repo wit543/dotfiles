@@ -8,6 +8,20 @@
 # ============================================================================
 
 # ============================================================================
+# PATH SETUP (must be early for plugins that check for commands)
+# ============================================================================
+
+# Homebrew (macOS)
+if [[ -d "/opt/homebrew/bin" ]]; then
+    export PATH="/opt/homebrew/bin:/opt/homebrew/sbin:$PATH"
+elif [[ -d "/usr/local/bin" ]]; then
+    export PATH="/usr/local/bin:$PATH"
+fi
+
+# Local bin
+export PATH="$HOME/.local/bin:$PATH"
+
+# ============================================================================
 # ZINIT INITIALIZATION
 # ============================================================================
 # NOTE: Zinit auto-installs on first shell startup
@@ -30,6 +44,9 @@ source "${ZINIT_HOME}/zinit.zsh"
 # ============================================================================
 # NOTE: wait"0" = load immediately after prompt displays (~40ms startup)
 
+# FZF Marks config (must be set BEFORE plugin loads)
+export FZF_MARKS_JUMP="^h"         # Ctrl+H to jump to mark
+
 # Oh-My-Zsh snippets (load synchronously for critical functionality)
 zinit snippet OMZL::git.zsh
 zinit snippet OMZP::git
@@ -42,6 +59,9 @@ zinit wait lucid for \
     OMZP::docker-compose \
     OMZP::dotenv
 
+# fzf-marks (load synchronously for Ctrl+H binding)
+zinit light urbainvaes/fzf-marks
+
 # External plugins with Turbo mode
 zinit wait lucid for \
     atinit"zicompinit; zicdreplay" \
@@ -51,7 +71,6 @@ zinit wait lucid for \
     blockf atpull'zinit creinstall -q .' \
         zsh-users/zsh-completions \
     zsh-users/zsh-history-substring-search \
-    urbainvaes/fzf-marks \
     hchbaw/zce.zsh \
     changyuheng/zsh-interactive-cd
 
@@ -286,7 +305,6 @@ ZSH_AUTOSUGGEST_STRATEGY=(history completion)
 # FZF options
 export FZF_DEFAULT_OPTS="--reverse --height=40%"
 export FZF_CTRL_R_OPTS="--reverse"
-export FZF_MARKS_JUMP="^h"         # Ctrl+H to jump to mark
 
 # ============================================================================
 # FZF INTEGRATION
@@ -352,39 +370,53 @@ if [[ "$OS_TYPE" != "macos" ]]; then
 fi
 
 # ============================================================================
-# CONDA (Python Environment Manager)
+# PYTHON ENVIRONMENT MANAGER (micromamba / conda)
 # ============================================================================
-# NOTE: Searches common installation paths automatically
+# NOTE: Prefers micromamba, falls back to conda/anaconda
 
-CONDA_PATHS=(
-    "/opt/anaconda3"
-    "$HOME/anaconda3"
-    "$HOME/miniconda3"
-    "/opt/miniconda3"
-    "/usr/local/anaconda3"
-    "/opt/homebrew/anaconda3"
-)
+# --------------------------
+# Micromamba (preferred)
+# --------------------------
+if [[ -f "$HOME/.local/bin/micromamba" ]]; then
+    export MAMBA_ROOT_PREFIX="${MAMBA_ROOT_PREFIX:-$HOME/.local/share/mamba}"
+    eval "$("$HOME/.local/bin/micromamba" shell hook --shell zsh)"
 
-for conda_path in "${CONDA_PATHS[@]}"; do
-    if [[ -f "$conda_path/bin/conda" ]]; then
-        # Initialize conda
-        __conda_setup="$("$conda_path/bin/conda" 'shell.zsh' 'hook' 2>/dev/null)"
-        if [[ $? -eq 0 ]]; then
-            eval "$__conda_setup"
-        elif [[ -f "$conda_path/etc/profile.d/conda.sh" ]]; then
-            source "$conda_path/etc/profile.d/conda.sh"
-        else
-            export PATH="$conda_path/bin:$PATH"
+    # Activate default environment
+    micromamba activate troik 2>/dev/null || true
+
+# --------------------------
+# Conda/Anaconda (fallback)
+# --------------------------
+else
+    CONDA_PATHS=(
+        "/opt/anaconda3"
+        "$HOME/anaconda3"
+        "$HOME/miniconda3"
+        "/opt/miniconda3"
+        "/usr/local/anaconda3"
+        "/opt/homebrew/anaconda3"
+    )
+
+    for conda_path in "${CONDA_PATHS[@]}"; do
+        if [[ -f "$conda_path/bin/conda" ]]; then
+            # Initialize conda
+            __conda_setup="$("$conda_path/bin/conda" 'shell.zsh' 'hook' 2>/dev/null)"
+            if [[ $? -eq 0 ]]; then
+                eval "$__conda_setup"
+            elif [[ -f "$conda_path/etc/profile.d/conda.sh" ]]; then
+                source "$conda_path/etc/profile.d/conda.sh"
+            else
+                export PATH="$conda_path/bin:$PATH"
+            fi
+            unset __conda_setup
+
+            # Activate default environment
+            conda activate troik 2>/dev/null || true
+
+            break
         fi
-        unset __conda_setup
-
-        # Activate default environment if exists
-        # NOTE: Change 'troik' to your preferred default environment
-        conda activate troik 2>/dev/null || true
-
-        break
-    fi
-done
+    done
+fi
 
 # ============================================================================
 # GOOGLE CLOUD SDK

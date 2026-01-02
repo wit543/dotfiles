@@ -70,6 +70,7 @@ sequenceDiagram
     participant User
     participant Bootstrap
     participant Installer
+    participant ProfileResolver
     participant PackageManager
     participant ConfigDeployer
 
@@ -77,15 +78,96 @@ sequenceDiagram
     Bootstrap->>Bootstrap: Clone dotfiles repo
     Bootstrap->>Installer: Execute install.sh
 
+    Installer->>ProfileResolver: Resolve profile/components
+    alt --profile specified
+        ProfileResolver-->>Installer: Profile components
+    else --interactive or TTY
+        ProfileResolver->>User: Select profile
+        User-->>ProfileResolver: Choice
+        ProfileResolver-->>Installer: Selected components
+    else default
+        ProfileResolver-->>Installer: full profile
+    end
+
     alt Full Install (--sudo)
         Installer->>PackageManager: Install packages
         PackageManager-->>Installer: Done
     end
 
-    Installer->>ConfigDeployer: Deploy configs
+    loop For each component
+        Installer->>ConfigDeployer: Deploy if should_install()
+    end
     ConfigDeployer->>ConfigDeployer: Create symlinks
     ConfigDeployer->>ConfigDeployer: Setup plugins
     ConfigDeployer-->>User: Installation complete
+```
+
+### 2.1 Profile-Based Installation
+
+```mermaid
+flowchart TD
+    A[Start] --> B{Profile specified?}
+    B -->|--profile=X| C[Use profile X]
+    B -->|--components=X,Y| D[Use custom list]
+    B -->|--interactive| E[Show menu]
+    B -->|No args + TTY| E
+    B -->|No args + pipe| F[Default: full]
+
+    E --> G{User choice}
+    G -->|1-4| H[Use selected profile]
+    G -->|5| I[Custom selection]
+
+    C --> J[Get profile components]
+    D --> J
+    H --> J
+    I --> J
+    F --> J
+
+    J --> K[SELECTED_COMPONENTS]
+    K --> L{For each setup function}
+    L --> M{should_install component?}
+    M -->|Yes| N[Run setup]
+    M -->|No| O[Skip]
+    N --> L
+    O --> L
+```
+
+### 2.2 Profile Definitions
+
+| Profile | Components | Use Case |
+|---------|------------|----------|
+| `minimal` | zsh, git, editorconfig | Servers, VMs |
+| `deploy` | minimal + docker | CI/CD, containers |
+| `development` | deploy + vim, tmux, vscode | Workstations |
+| `full` | development + claude | Power users |
+
+**Unix/Linux Components:**
+```
+zsh         → Zinit, Starship, zoxide, fzf, plugins
+vim         → vim-plug, Neovim, 40+ plugins
+tmux        → TPM, gpakosz config
+git         → .gitconfig, .gitignore_global
+vscode      → settings.json, keybindings, extensions
+claude      → settings.json, CLAUDE.md
+editorconfig→ .editorconfig
+docker      → lazydocker (Linux only)
+```
+
+**Windows Components:**
+```
+system      → Cursor size, hibernate
+bloatware   → Remove 80+ apps
+telemetry   → Disable tracking/ads
+cli-basic   → git, fzf, ripgrep
+cli-full    → neovim, fd, bat, eza, delta, zoxide, starship, jq, yq
+tui         → lazygit, lazydocker, btop
+devtools    → Node.js, Python, Go, Docker
+apps        → Chrome, VSCode, Terminal
+font        → MesloLGS Nerd Font
+git         → .gitconfig
+vscode      → settings, extensions
+claude      → CLI, settings, CLAUDE.md
+profile     → PowerShell profile
 ```
 
 ### 3. Package Installation
@@ -392,25 +474,70 @@ classDiagram
 
 ## Windows Setup Process
 
-### Step-by-Step Flow
+### Profile-Based Installation
 
 ```mermaid
 flowchart TD
-    A[Start setup.ps1] --> B[1. Remove Bloatware]
+    A[Start setup.ps1] --> B{Parse -Profile}
+    B --> C[Get SelectedComponents]
+
+    C --> D{Should-Install bloatware?}
+    D -->|Yes| E[Remove Bloatware]
+    D -->|No| F{Should-Install telemetry?}
+    E --> F
+
+    F -->|Yes| G[Disable Telemetry]
+    F -->|No| H{Should-Install system?}
+    G --> H
+
+    H -->|Yes| I[System Settings]
+    H -->|No| J{Should-Install cli-basic?}
+    I --> J
+
+    J -->|Yes| K[Basic CLI: git, fzf, rg]
+    J -->|No| L{Should-Install cli-full?}
+    K --> L
+
+    L -->|Yes| M[Full CLI: neovim, bat, eza...]
+    L -->|No| N{Should-Install tui?}
+    M --> N
+
+    N -->|Yes| O[TUI: lazygit, btop]
+    N -->|No| P{Continue...}
+    O --> P
+
+    P --> Q[More components...]
+    Q --> R[Summary]
+```
+
+### Windows Profile Components
+
+| Profile | Components Installed |
+|---------|---------------------|
+| `minimal` | system, bloatware, telemetry, git, cli-basic |
+| `deploy` | minimal + docker |
+| `development` | deploy + cli-full, tui, devtools, vscode, apps, font, profile |
+| `full` | development + claude |
+
+### Step-by-Step Flow (Full Profile)
+
+```mermaid
+flowchart TD
+    A[Start setup.ps1 -Profile full] --> B[1. Remove Bloatware]
     B --> C[2. Disable Telemetry]
     C --> D[3. System Settings]
-    D --> E[4. Core CLI Tools]
-    E --> F[5. TUI Tools]
-    F --> G[6. Dev Tools]
-    G --> H[7. Applications]
-    H --> I[8. Nerd Font]
-    I --> J[9. Git Config]
-    J --> K[10. Starship Config]
-    K --> L[11. VSCode Config]
-    L --> M[12. Claude Config]
-    M --> N[13. Claude CLI]
+    D --> E[4. Basic CLI Tools]
+    E --> F[5. Full CLI Tools]
+    F --> G[6. TUI Tools]
+    G --> H[7. Dev Tools]
+    H --> I[8. Applications]
+    I --> J[9. Nerd Font]
+    J --> K[10. Git Config]
+    K --> L[11. Starship Config]
+    L --> M[12. VSCode Config]
+    M --> N[13. Claude Config]
     N --> O[14. PowerShell Profile]
-    O --> P[Complete]
+    O --> P[Summary]
 
     subgraph "Bloatware Removal"
         B1[Get-AppxPackage]
@@ -419,14 +546,15 @@ flowchart TD
     end
 
     subgraph "CLI Tools"
-        E1[git, neovim]
-        E2[fzf, ripgrep, fd]
-        E3[bat, eza, delta]
-        E4[zoxide, starship]
+        E1[git, fzf, ripgrep]
+        F1[neovim, fd, bat, eza]
+        F2[delta, zoxide, starship]
+        F3[jq, yq, tldr, dust]
     end
 
     B --> B1 --> B2 --> B3
-    E --> E1 --> E2 --> E3 --> E4
+    E --> E1
+    F --> F1 --> F2 --> F3
 ```
 
 ## Directory Structure
@@ -444,6 +572,7 @@ graph TD
     E --> E1[utils.sh]
     E --> E2[os.sh]
     E --> E3[packages.sh]
+    E --> E4[profiles.sh]
 
     F --> F1[zsh/]
     F --> F2[vim/]
