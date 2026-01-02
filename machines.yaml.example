@@ -1,0 +1,39 @@
+# Machine Mapping Configuration
+# Use this file to track remote machines for dotfiles deployment
+#
+# Copy this file to machines.yaml and fill in your machines:
+#   cp machines.yaml.example machines.yaml
+#
+# Usage with install.sh:
+#   ./install.sh --remote <machine-name>
+#
+# SSH connection: user@host
+
+machines:
+  # macOS example
+  my-macbook:
+    user: myuser
+    host: 192.168.1.100
+    os: macos
+    description: MacBook Pro
+
+  # Ubuntu/Debian example
+  ubuntu-server:
+    user: admin
+    host: 10.0.0.50
+    os: ubuntu
+    description: Home Ubuntu server
+
+  # Rocky/RHEL example
+  rocky-vm:
+    user: root
+    host: 192.168.1.200
+    os: rocky
+    description: Rocky Linux VM
+
+  # Windows WSL example
+  windows-wsl:
+    user: myuser
+    host: 192.168.1.150
+    os: wsl
+    description: Windows 11 with WSL2

@@ -1,0 +1,4 @@
+# TUI Installer Dependencies
+# Install with: pip install -r requirements-tui.txt
+
+textual>=0.85.0

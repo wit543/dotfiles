@@ -11,6 +11,8 @@
   },
   "permissions": {
     "allow": [
+      "WebSearch",
+      "WebFetch",
       "mcp__context7",
       "Bash(git add:*)",
       "Bash(git status:*)",

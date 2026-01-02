@@ -73,6 +73,7 @@ chmod +x "$SCRIPT_DIR"/*.sh
 run_suite "test_utils.sh" "Utility Functions" || true
 run_suite "test_packages.sh" "Package Functions" || true
 run_suite "test_configs.sh" "Configuration Files" || true
+run_suite "test_architecture.sh" "Architecture Sync" || true
 
 if [[ "$QUICK_MODE" == "false" ]]; then
     run_suite "test_integration.sh" "Integration Tests" || true

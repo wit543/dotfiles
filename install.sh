@@ -260,6 +260,74 @@ setup_vim() {
 }
 
 # ============================================================================
+# PYTHON / MICROMAMBA SETUP
+# ============================================================================
+# NOTE: Installs micromamba and creates the troik environment
+
+setup_python() {
+    log_info "Setting up Python with micromamba..."
+
+    local MAMBA_ROOT="$HOME/.local/share/mamba"
+    local MAMBA_BIN="$HOME/.local/bin/micromamba"
+
+    # --------------------------
+    # Install micromamba
+    # --------------------------
+    if [[ ! -f "$MAMBA_BIN" ]]; then
+        log_info "Installing micromamba..."
+        mkdir -p "$HOME/.local/bin"
+
+        # Download and install micromamba
+        if is_macos; then
+            if [[ "$(uname -m)" == "arm64" ]]; then
+                curl -Ls https://micro.mamba.pm/api/micromamba/osx-arm64/latest | tar -xvj -C "$HOME/.local/bin" --strip-components=1 bin/micromamba
+            else
+                curl -Ls https://micro.mamba.pm/api/micromamba/osx-64/latest | tar -xvj -C "$HOME/.local/bin" --strip-components=1 bin/micromamba
+            fi
+        else
+            # Linux
+            if [[ "$(uname -m)" == "aarch64" ]]; then
+                curl -Ls https://micro.mamba.pm/api/micromamba/linux-aarch64/latest | tar -xvj -C "$HOME/.local/bin" --strip-components=1 bin/micromamba
+            else
+                curl -Ls https://micro.mamba.pm/api/micromamba/linux-64/latest | tar -xvj -C "$HOME/.local/bin" --strip-components=1 bin/micromamba
+            fi
+        fi
+        log_success "micromamba installed"
+    else
+        log_success "micromamba already installed"
+        if $UPDATE_MODE; then
+            log_info "Updating micromamba..."
+            "$MAMBA_BIN" self-update || true
+        fi
+    fi
+
+    # --------------------------
+    # Initialize micromamba
+    # --------------------------
+    mkdir -p "$MAMBA_ROOT"
+    export MAMBA_ROOT_PREFIX="$MAMBA_ROOT"
+
+    # --------------------------
+    # Create troik environment
+    # --------------------------
+    if [[ -f "$DOTFILES_DIR/config/python/troik-environment.yml" ]]; then
+        if [[ ! -d "$MAMBA_ROOT/envs/troik" ]]; then
+            log_info "Creating troik environment..."
+            "$MAMBA_BIN" create -n troik -f "$DOTFILES_DIR/config/python/troik-environment.yml" -y
+            log_success "troik environment created"
+        else
+            log_success "troik environment already exists"
+            if $UPDATE_MODE; then
+                log_info "Updating troik environment..."
+                "$MAMBA_BIN" update -n troik --all -y || true
+            fi
+        fi
+    fi
+
+    log_success "Python setup complete"
+}
+
+# ============================================================================
 # TMUX SETUP
 # ============================================================================
 # NOTE: Uses gpakosz/.tmux configuration with TPM
@@ -415,6 +483,14 @@ setup_macos() {
     fi
 
     # --------------------------
+    # macOS Defaults (appearance, power, finder, dock, etc.)
+    # --------------------------
+    if [[ -f "$DOTFILES_DIR/config/macos/defaults.sh" ]]; then
+        log_info "Applying macOS defaults..."
+        "$DOTFILES_DIR/config/macos/defaults.sh"
+    fi
+
+    # --------------------------
     # Google Cloud SDK
     # --------------------------
     if [[ -d "/opt/homebrew/Caskroom/google-cloud-sdk" ]]; then
@@ -531,6 +607,7 @@ main() {
     setup_editorconfig
     setup_vscode
     setup_claude
+    setup_python
 
     # --------------------------
     # OS-Specific Setup

@@ -16,3 +16,6 @@ Thumbs.db
 
 # Backup files
 *.backup.*
+
+# Machine config (contains IPs/hostnames)
+machines.yaml

@@ -1,10 +1,12 @@
 # Dotfiles
 
-Cross-platform dotfiles for macOS, Ubuntu, Rocky Linux, and Manjaro.
+Cross-platform dotfiles for macOS, Ubuntu, Rocky Linux, Manjaro, and Windows.
 
 ## Quick Start
 
 ### One-liner Installation
+
+**macOS / Linux:**
 
 ```bash
 # Full installation (packages + configs)
@@ -15,6 +17,18 @@ curl -fsSL https://raw.githubusercontent.com/wit543/dotfiles/main/bootstrap.sh |
 
 # Update existing installation
 curl -fsSL https://raw.githubusercontent.com/wit543/dotfiles/main/bootstrap.sh | bash -s -- --update
+```
+
+**Windows (PowerShell):**
+
+```powershell
+irm https://raw.githubusercontent.com/wit543/dotfiles/main/config/windows/install.ps1 | iex
+```
+
+**Windows (CMD):**
+
+```cmd
+curl -fsSL https://raw.githubusercontent.com/wit543/dotfiles/main/config/windows/install.cmd -o install.cmd && install.cmd && del install.cmd
 ```
 
 ### Manual Installation
@@ -101,8 +115,13 @@ cd ~/dotfiles
 
 ### Claude Code
 
+- **WebSearch & WebFetch** always allowed (no prompts)
+- **MCP Servers**: Context7 for library documentation
 - **Global CLAUDE.md** with coding standards across all projects
 - **Pre-approved commands** for safe operations (git, npm, pytest, etc.)
+- **Deployed to**:
+  - `~/.claude/` - User-level config (CLI + VSCode extension)
+  - `%APPDATA%\claude-code\` - Windows CLI config
 - **Coding standards**:
   - Conventional commits format
   - Language-specific style guides
@@ -127,6 +146,57 @@ cd ~/dotfiles
 | Ubuntu | apt | Full support |
 | Rocky Linux | dnf | Full support |
 | Manjaro | pacman | Full support |
+| Windows 11 | winget | Full support |
+
+### Windows Setup
+
+The Windows installer provides full feature parity with macOS/Linux:
+
+**System Tweaks:**
+
+- Remove 80+ bloatware apps (Cortana, Bing, Candy Crush, etc.)
+- Disable telemetry, ads, and Copilot
+- Hibernate disabled
+- Cursor: Black, 150% size
+
+**CLI Tools (via winget):**
+
+| Tool | Description |
+| ---- | ----------- |
+| git, neovim | Version control, editor |
+| fzf, ripgrep, fd | Fuzzy finder, fast search |
+| bat, eza, delta | Modern cat, ls, diff |
+| zoxide, starship | Smart cd, cross-shell prompt |
+| jq, yq, tldr, dust | JSON/YAML, man pages, disk usage |
+
+**TUI Productivity:**
+
+| Tool | Alias | Description |
+| ---- | ----- | ----------- |
+| lazygit | `lg` | Git terminal UI |
+| lazydocker | `lzd` | Docker terminal UI |
+| btop | - | System monitor |
+
+**Development:**
+
+- Node.js, Python 3.12, Go
+- Docker Desktop
+
+**Applications:**
+
+- Chrome (set as default)
+- VSCode (with settings + extensions)
+- Windows Terminal
+
+**Configs Deployed:**
+
+- Git config (with delta)
+- Starship prompt
+- VSCode settings & keybindings
+- Claude Code (WebSearch, WebFetch, MCP, CLAUDE.md)
+- PowerShell profile with aliases
+
+Run as Administrator for full functionality.
 
 ## Directory Structure
 
@@ -157,9 +227,13 @@ dotfiles/
 │   ├── vscode/            # VSCode configuration
 │   │   ├── settings.json  # User settings
 │   │   └── extensions.txt # Extensions list
-│   └── claude/            # Claude Code configuration
-│       ├── CLAUDE.md      # Global coding standards
-│       └── settings.json  # Permissions & settings
+│   ├── claude/            # Claude Code configuration
+│   │   ├── CLAUDE.md      # Global coding standards
+│   │   └── settings.json  # Permissions & settings
+│   └── windows/           # Windows configuration
+│       ├── setup.ps1      # Full setup script
+│       ├── install.ps1    # One-liner (PowerShell)
+│       └── install.cmd    # One-liner (CMD)
 └── packages/
     ├── Brewfile           # macOS packages
     ├── apt.txt            # Ubuntu/Debian packages
