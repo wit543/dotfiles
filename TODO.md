@@ -14,13 +14,15 @@ Comprehensive task list organized by topic. Check off items as completed.
 6. [Claude Code Integration](#claude-code-integration)
 7. [VSCode Configuration](#vscode-configuration)
 8. [Package Management](#package-management)
-9. [Windows Support](#windows-support)
-10. [Remote Deployment](#remote-deployment)
-11. [TUI Installer](#tui-installer)
-12. [Testing](#testing)
-13. [Documentation](#documentation)
-14. [Security](#security)
-15. [Future Enhancements](#future-enhancements)
+9. [macOS Configuration](#macos-configuration)
+10. [Python Environment](#python-environment)
+11. [Windows Support](#windows-support)
+12. [Remote Deployment](#remote-deployment)
+13. [TUI Installer](#tui-installer)
+14. [Testing](#testing)
+15. [Documentation](#documentation)
+16. [Security](#security)
+17. [Future Enhancements](#future-enhancements)
 
 ---
 
@@ -43,11 +45,21 @@ Comprehensive task list organized by topic. Check off items as completed.
 
 - [x] Create lib/utils.sh with logging helpers
 - [x] Create lib/packages.sh for package management
-- [ ] Create lib/os.sh for OS detection (currently in install.sh)
+- [x] Create lib/profiles.sh for installation profiles
+- [x] Create lib/os.sh for OS detection
 - [ ] Add lib/backup.sh for config backup/restore
 - [ ] Add lib/symlink.sh for symlink management
 - [ ] Add lib/verify.sh for post-install verification
 - [ ] Standardize error handling across all scripts
+
+### Utility Scripts
+
+- [x] Create verify.sh for post-install verification
+- [x] Create reset.sh for config removal/reset
+- [ ] Document verify.sh usage and checks
+- [ ] Document reset.sh safety features
+- [ ] Add reset.sh --dry-run mode
+- [ ] Add selective reset (reset only specific components)
 
 ### Directory Structure
 
@@ -71,10 +83,15 @@ Comprehensive task list organized by topic. Check off items as completed.
 - [x] Configure zsh-syntax-highlighting
 - [x] Configure zsh-completions
 - [x] Configure fzf-tab completion
+- [x] Configure zsh-history-substring-search
+- [x] Configure fzf-marks (Ctrl+H jump to bookmarks)
+- [x] Configure zsh-interactive-cd
+- [x] Configure zce (Ctrl+F quick jump)
+- [x] Configure OMZP plugins (git, fzf, extract, docker, dotenv)
 - [ ] Add custom completion scripts
 - [ ] Optimize plugin loading order
 - [ ] Add lazy loading for heavy plugins
-- [ ] Create .zshrc.local template
+- [x] Create .zshrc.local template (documented in .zshrc)
 
 ### Prompt (Starship)
 
@@ -95,9 +112,9 @@ Comprehensive task list organized by topic. Check off items as completed.
 - [x] Configure ripgrep (grep replacement)
 - [x] Configure zoxide (cd replacement)
 - [x] Configure dust (du replacement)
-- [ ] Configure procs (ps replacement)
-- [ ] Configure sd (sed replacement)
-- [ ] Add automatic fallbacks when tools missing
+- [x] Configure procs (ps replacement)
+- [x] Configure sd (sed replacement)
+- [x] Add automatic fallbacks when tools missing
 - [ ] Create unified config for all tools
 
 ### Key Bindings
@@ -105,8 +122,10 @@ Comprehensive task list organized by topic. Check off items as completed.
 - [x] Configure Ctrl+R for FZF history
 - [x] Configure Ctrl+T for FZF files
 - [x] Configure Alt+C for FZF directories
-- [x] Configure Ctrl+F for quick jump
-- [x] Configure Shift+Tab for autosuggestion
+- [x] Configure Ctrl+F for quick jump (zce)
+- [x] Configure Ctrl+H for fzf-marks jump
+- [x] Configure Shift+Tab for autosuggestion accept
+- [x] Configure Up/Down arrow for history substring search
 - [ ] Add Ctrl+G for git status
 - [ ] Add Ctrl+B for branch switching
 - [ ] Document all custom keybindings
@@ -116,10 +135,15 @@ Comprehensive task list organized by topic. Check off items as completed.
 - [x] Create modern tool aliases
 - [x] Create git aliases
 - [x] Create docker aliases
+- [x] Create tmux aliases
+- [x] Create python aliases
+- [x] Add mkcd function
+- [x] Add psg function (process search)
+- [x] Add fshere function (sshfs mount)
+- [x] Add extract plugin (via OMZP::extract)
+- [x] Add yazi file manager integration
 - [ ] Create kubernetes aliases
 - [ ] Create terraform aliases
-- [ ] Add mkcd function
-- [ ] Add extract function (universal archive)
 - [ ] Add backup function
 - [ ] Add weather function
 - [ ] Add cheatsheet function
@@ -195,6 +219,10 @@ Comprehensive task list organized by topic. Check off items as completed.
 
 ### Aliases to Add
 
+- [x] git lg (log with graph)
+- [x] git last (show last commit)
+- [x] git unstage (reset HEAD)
+- [x] git amend (amend without message change)
 - [ ] git recent (recent branches)
 - [ ] git contributors
 - [ ] git changelog
@@ -330,6 +358,96 @@ Comprehensive task list organized by topic. Check off items as completed.
 
 ---
 
+## macOS Configuration
+
+### System Defaults
+
+- [x] Create defaults.sh script
+- [x] Configure Dock settings (auto-hide, size, position)
+- [x] Configure Finder settings (show extensions, hidden files, path bar)
+- [x] Configure keyboard settings (key repeat, delay, disable auto-correct)
+- [x] Configure trackpad settings (tap to click, three-finger drag)
+- [x] Configure screenshot settings (location ~/Pictures/Screenshots, PNG format)
+- [x] Configure power settings (disable sleep)
+- [x] Configure security settings (require password after sleep)
+- [ ] Configure hot corners
+- [ ] Add menu bar configuration
+- [ ] Configure Spotlight settings
+
+### Appearance
+
+- [x] Configure dark mode (always dark)
+- [ ] Configure accent colors
+- [ ] Configure highlight colors
+- [ ] Add wallpaper management
+
+### Security & Privacy
+
+- [x] Configure password requirement after sleep
+- [x] Disable screensaver
+- [ ] Configure FileVault
+- [ ] Configure Firewall settings
+- [ ] Configure Gatekeeper settings
+- [ ] Configure privacy permissions
+
+### Applications
+
+- [x] Set default browser (Chrome)
+- [ ] Add more default app associations
+- [ ] Configure Safari settings
+- [ ] Configure Mail settings
+- [ ] Add Launch Agents for automation
+
+### Integration
+
+- [ ] Integrate defaults.sh into install.sh
+- [ ] Add --macos-defaults flag to installer
+- [ ] Create defaults backup/restore
+- [ ] Add idempotent defaults application
+
+---
+
+## Python Environment
+
+### Environment Management
+
+- [x] Export conda/mamba environments (troik-environment.yml)
+- [ ] Add pyenv installation and configuration
+- [ ] Add poetry configuration
+- [ ] Add pipx for CLI tools
+- [ ] Create requirements.txt for pip fallback
+
+### Virtual Environments
+
+- [ ] Document venv best practices
+- [ ] Add virtualenvwrapper configuration
+- [ ] Add conda environment templates
+- [ ] Create project-specific environment scripts
+
+### Package Lists
+
+- [ ] Create python-cli-tools.txt (pipx packages)
+- [ ] Create python-dev-packages.txt (development tools)
+- [ ] Create python-data-science.txt (numpy, pandas, etc.)
+- [ ] Add version pinning for reproducibility
+
+### Configuration Files
+
+- [ ] Add .pylintrc configuration
+- [ ] Add .flake8 configuration
+- [ ] Add pyproject.toml template
+- [ ] Add .python-version for pyenv
+- [ ] Add pip.conf for custom settings
+
+### IDE Integration
+
+- [ ] Configure Python path in VSCode
+- [ ] Add Jupyter configuration
+- [ ] Configure black/isort formatting
+- [ ] Add mypy configuration
+
+---
+
 ## Windows Support
 
 ### Setup Script
@@ -391,6 +509,15 @@ Comprehensive task list organized by topic. Check off items as completed.
 - [ ] Add parallel deployment
 - [ ] Add deployment logging
 - [ ] Add rollback on failure
+
+### SSH Key Management
+
+- [ ] Add ssh-copy-id automation
+- [ ] Create SSH key generation helper
+- [ ] Add key rotation reminders
+- [ ] Support ed25519 and RSA keys
+- [ ] Add SSH config generation (~/.ssh/config)
+- [ ] Create passwordless setup wizard
 
 ### Machine Configuration
 
@@ -461,7 +588,7 @@ Comprehensive task list organized by topic. Check off items as completed.
 - [x] Create test_architecture.sh for doc sync
 - [x] Create test_integration.sh
 - [x] Create test_functional.sh
-- [ ] Create test_windows.ps1 for Windows
+- [x] Create test_windows.ps1 for Windows
 - [ ] Add performance benchmarks
 - [ ] Add installation timing tests
 
@@ -512,6 +639,7 @@ Comprehensive task list organized by topic. Check off items as completed.
 - [ ] VSCode configuration guide
 - [ ] Windows setup guide
 - [ ] Remote deployment guide
+- [x] Installation profiles guide (in README.md)
 
 ### Reference
 
@@ -557,7 +685,7 @@ Comprehensive task list organized by topic. Check off items as completed.
 
 - [ ] WSL (Windows Subsystem for Linux) support
 - [ ] Rich progress bars in TUI
-- [ ] Configuration profiles (work, personal, minimal)
+- [x] Configuration profiles (minimal, deploy, development, full)
 - [ ] Auto-update mechanism
 - [ ] Backup before update
 
@@ -595,13 +723,17 @@ Comprehensive task list organized by topic. Check off items as completed.
 Easy tasks to tackle first:
 
 1. [ ] Add --dry-run flag to install.sh
-2. [ ] Create .zshrc.local template
+2. [x] Create .zshrc.local template (documented in .zshrc comments)
 3. [ ] Add git recent alias
 4. [ ] Document all keybindings
 5. [ ] Add GitHub Actions basic CI
 6. [ ] Create CONTRIBUTING.md
 7. [ ] Add shellcheck to tests
 8. [ ] Create alias cheat sheet
+9. [ ] Integrate defaults.sh into macOS install
+10. [ ] Add SSH config generation
+11. [ ] Create pyenv setup script
+12. [ ] Document reset.sh usage
 
 ---
 
@@ -613,13 +745,17 @@ Easy tasks to tackle first:
 - Create CONTRIBUTING.md
 - Document keybindings
 - Add basic CI
+- Integrate macOS defaults.sh
+- Add SSH config generation
 
 ### High Priority + Complex
 
 - WSL support
-- Configuration profiles
+- ~~Configuration profiles~~ ✓ Done
 - Backup/restore mechanism
 - Auto-update system
+- Python environment management
+- Parallel remote deployment
 
 ### Low Priority + Quick
 
@@ -627,6 +763,7 @@ Easy tasks to tackle first:
 - Create shell functions
 - Add weather function
 - Theme variations
+- Document reset.sh/verify.sh
 
 ### Low Priority + Complex
 
@@ -634,6 +771,7 @@ Easy tasks to tackle first:
 - Nix support
 - Web configuration UI
 - Plugin system
+- Starship theme switcher
 
 ---
 
